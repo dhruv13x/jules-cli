@@ -6,6 +6,7 @@
 - [x] Introduce structured logging (DEBUG, INFO, WARN, ERROR)
 - [x] Add centralized error-handling architecture
 - [x] Create a unified configuration system
+- [ ] Add automatic environment validation
 - [x] Add automatic environment validation
 📘 JULES_SESSION.md
 
