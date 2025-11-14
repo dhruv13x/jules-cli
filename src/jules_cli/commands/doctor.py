@@ -32,7 +32,7 @@ def check_github_token():
 def check_config_file():
     return f"Config file found at {DEFAULT_CONFIG_PATH}." if os.path.exists(DEFAULT_CONFIG_PATH) else "Config file not found."
 
-def run_doctor_command(json_output=False):
+def run_doctor_command():
     checks = {
         "JULES_API_KEY": check_jules_api_key(),
         "Git": check_git_installed(),
@@ -43,9 +43,7 @@ def run_doctor_command(json_output=False):
         "Config File": check_config_file(),
     }
 
-    if json_output:
-        logger.info(json.dumps(checks, indent=2))
-    else:
-        logger.info("Jules Environment Doctor")
-        for check, result in checks.items():
-            logger.info(f"- {check}: {result}")
+    logger.info("Jules Environment Doctor")
+    for check, result in checks.items():
+        logger.info(f"- {check}: {result}")
+    return checks

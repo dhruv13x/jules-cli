@@ -7,9 +7,10 @@ def auto_fix_command(repo_dir_name="bot_platform"):
     code, out, err = run_pytest()
     if code == 0:
         logger.info("🎉 All tests passed. Nothing to do.")
-        return
+        return {"status": "success", "message": "All tests passed."}
     failure_text = out + "\n" + err
     run_task(prompt_from_failure(failure_text), repo_dir_name=repo_dir_name, auto=True)
+    return {"status": "running", "message": "Attempting to fix failed tests."}
 
 def prompt_from_failure(failure_text: str) -> str:
     return (
