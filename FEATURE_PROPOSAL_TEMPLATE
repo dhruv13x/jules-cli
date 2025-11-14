@@ -1,0 +1,399 @@
+---
+
+📄 FEATURE_PROPOSAL_TEMPLATE.md
+
+# Feature Proposal — jules-cli
+
+**Proposal ID:** (auto-generated or YYYYMMDD-<feature-name>)  
+**Author:**  
+**Date Submitted:**  
+**Status:** Draft / Under Review / Approved / Rejected  
+**Target Version:** (e.g., v1.2, v2.0, etc.)  
+**Priority:** Low / Medium / High / Critical  
+**Category:** CLI / AI Agent / Git / Testing / CI/CD / Enterprise / Security / Plugin / DX
+
+---
+
+# 1. Summary
+
+> Provide a high-level summary of the proposed feature.  
+> 2–4 sentences describing **what**, **why**, and **who** it’s for.
+
+---
+
+# 2. Problem Statement
+
+Describe the problem or pain point:
+
+- What is missing or inefficient today?
+- Who experiences the problem?
+- What is the impact on development or workflow?
+- Why must this feature exist?
+
+Include real examples or failure modes when possible.
+
+---
+
+# 3. Goals & Non-Goals
+
+### 🎯 Goals (What this proposal *will* achieve)
+
+- List measurable, specific outcomes.
+- Describe the user-facing improvements.
+- Describe architectural or DX improvements.
+
+### 🚫 Non-Goals (What this proposal *will NOT* include)
+
+- Clarify boundaries.
+- Prevent scope creep.
+- Exclude unrelated future enhancements.
+
+---
+
+# 4. Feature Overview
+
+Explain *exactly* what the feature does.
+
+Include:
+
+- CLI usage examples
+- API endpoints, if applicable
+- Workflow diagrams
+- Expected outputs or behaviors
+- User stories
+
+Example:
+
+As a developer, I want Jules to automatically resolve git conflicts, so I can apply patches even when my working tree has diverged.
+
+---
+
+# 5. Detailed Design
+
+This is the technical heart of the document.
+
+Break into sub-sections:
+
+## 5.1 Architecture Diagram (Optional)
+
+Use Mermaid if you want:
+
+```mermaid
+flowchart LR
+    User --> CLI --> JulesAPI --> Git --> PR
+
+5.2 Component Interactions
+
+Explain how CLI modules, API calls, git operations, and local environment interact.
+
+5.3 Data Structures
+
+Define new objects, schemas, or classes.
+
+5.4 Algorithms or Logic
+
+Explain workflows like:
+
+polling
+
+conflict resolution
+
+patch generation
+
+smart test running
+
+refactor detection
+
+
+5.5 Error Handling Strategy
+
+Describe how the system behaves on:
+
+API timeouts
+
+missing credentials
+
+invalid patches
+
+git errors
+
+network failures
+
+
+
+---
+
+6. User Experience (UX/DX)
+
+CLI Examples
+
+Provide complete usage:
+
+jules resolve-conflicts
+jules patch-merge apply
+
+Configuration Options
+
+Example:
+
+[cli]
+auto_resolve = true
+max_retries = 3
+
+Logging / Output
+
+Define levels:
+
+quiet
+
+normal
+
+verbose
+
+debug
+
+json
+
+
+
+---
+
+7. Performance, Scalability & Reliability
+
+Explain:
+
+latency expectations
+
+memory/CPU usage
+
+retries and backoff
+
+parallelism options
+
+caching layers
+
+state persistence (SQLite, files, etc.)
+
+
+
+---
+
+8. Security, Compliance & Privacy
+
+List considerations:
+
+API key safety
+
+token storage
+
+encrypted config files
+
+compliance modes (SOC2, HIPAA, etc.)
+
+git access permissions
+
+secure logging (avoid PII)
+
+
+
+---
+
+9. Integration Impact
+
+Describe how this feature will affect:
+
+existing CLI commands
+
+internal APIs
+
+plugin ecosystem
+
+CI/CD pipelines
+
+GitHub/GitLab workflows
+
+backward compatibility
+
+
+
+---
+
+10. Alternatives Considered
+
+Include rejected ideas:
+
+Approach A: (Pros/Cons)
+
+Approach B: (Pros/Cons)
+
+
+Explain why final approach was selected.
+
+
+---
+
+11. Migration / Rollout Plan
+
+If the feature changes behavior:
+
+Migration steps
+
+Backward compatibility strategy
+
+Rollout phases
+
+Fallback plans
+
+Feature flags
+
+
+Example:
+
+Phase 1: hidden behind --experimental
+Phase 2: default-enabled in v2.0
+Phase 3: legacy method deprecated
+
+
+---
+
+12. Testing Strategy
+
+Specify:
+
+Unit tests
+
+Integration tests
+
+Mocking Jules API
+
+End-to-end testing scenarios
+
+Regression test plans
+
+
+
+---
+
+13. Telemetry (Optional)
+
+Define what analytics or metrics the CLI could collect (opt-in only):
+
+usage frequency
+
+error types
+
+latency
+
+cache hit/miss
+
+
+
+---
+
+14. Documentation Requirements
+
+List docs to produce:
+
+README updates
+
+Change logs
+
+Command help
+
+API reference (if applicable)
+
+Migration guide
+
+
+
+---
+
+15. Risks & Mitigations
+
+Identify potential risks:
+
+Risk	Impact	Likelihood	Mitigation
+
+API breaking change	High	Medium	Feature flags
+Patch fails	Medium	High	Automatic fallback mode
+Git conflict	Medium	High	AI conflict resolver
+Rate limits	Low	Medium	Exponential backoff
+
+
+
+---
+
+16. Success Metrics
+
+Define measurable outcomes:
+
+Adoption rate
+
+Reduced debugging time
+
+PR creation success rate
+
+Test failure resolution rate
+
+User satisfaction survey
+
+
+
+---
+
+17. Appendix
+
+Include:
+
+Extended examples
+
+Logs
+
+Links
+
+Full data structures
+
+JSON schemas
+
+Mermaid diagrams
+
+References
+
+
+
+---
+
+18. Approval Checklist
+
+Before merging, confirm:
+
+[ ] Technical Design Review
+
+[ ] Security Review
+
+[ ] Compatibility Check
+
+[ ] Correct Tests Implemented
+
+[ ] CLI Help Updated
+
+[ ] Documentation Updated
+
+[ ] Release Notes Prepared
+
+
+
+---
+
+✔ Status
+
+Reviewer	Role	Decision	Date
+
+Reviewer 1	Engineering Lead	TBD	
+Reviewer 2	Security	TBD	
+Reviewer 3	Product	TBD	
+Reviewer 4	Release Manager	TBD	
+
+
+
+---
