@@ -9,7 +9,7 @@ def test_main(mock_repl):
             mock_repl.assert_called_once()
 
 @patch('builtins.input', side_effect=['task "my task"', 'exit'])
-@patch('src.jules_cli.commands.task.run_task')
+@patch('src.jules_cli.cli.run_task')
 def test_repl_task_command(mock_run_task, mock_input):
     cli.repl()
     mock_run_task.assert_called_once_with("my task")
