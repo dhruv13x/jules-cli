@@ -1,5 +1,6 @@
 import time
 from ..git.vcs import git_create_branch_and_commit, git_push_branch
+from ..utils.logging import logger
 
 def cmd_commit_and_push():
     # create branch with timestamp
@@ -8,11 +9,11 @@ def cmd_commit_and_push():
     try:
         git_create_branch_and_commit(branch, commit_message="chore: automated changes from Jules")
     except Exception as e:
-        print("Failed to commit:", e)
+        logger.error("Failed to commit: %s", e)
         return
     try:
         git_push_branch(branch)
-        print(f"Pushed branch {branch}")
+        logger.info(f"Pushed branch {branch}")
     except Exception as e:
-        print("Failed to push automatically:", e)
-        print(f"Run: git push origin {branch}")
+        logger.error("Failed to push automatically: %s", e)
+        logger.info(f"Run: git push origin {branch}")

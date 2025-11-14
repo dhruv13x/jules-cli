@@ -1,11 +1,12 @@
 from ..pytest.runner import run_pytest
 from .task import run_task
+from ..utils.logging import logger
 
 def auto_fix_command(repo_dir_name="bot_platform"):
     # run pytest first
     code, out, err = run_pytest()
     if code == 0:
-        print("🎉 All tests passed. Nothing to do.")
+        logger.info("🎉 All tests passed. Nothing to do.")
         return
     failure_text = out + "\n" + err
     run_task(prompt_from_failure(failure_text), repo_dir_name=repo_dir_name, auto=True)

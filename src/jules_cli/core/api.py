@@ -3,28 +3,31 @@ import time
 import json
 from typing import Optional, Dict, Any, List
 import requests
+from ..utils.logging import logger
+from ..utils.exceptions import JulesAPIError
+from ..utils.config import config
 
 # Configuration
 JULES_KEY = os.getenv("JULES_API_KEY")
 BASE = "https://jules.googleapis.com/v1alpha"
 HEADERS = {"X-Goog-Api-Key": JULES_KEY, "Content-Type": "application/json"}
 POLL_INTERVAL = 3
-POLL_TIMEOUT = 300
+POLL_TIMEOUT = config.get("api_timeout", 300)
 
 def _http_request(method: str, path: str, json_data: Optional[dict] = None, params: Optional[dict] = None, timeout=60):
     url = f"{BASE}{path}"
     try:
         resp = requests.request(method, url, headers=HEADERS, json=json_data, params=params, timeout=timeout)
     except Exception as e:
-        raise RuntimeError(f"HTTP request failed: {e}")
+        raise JulesAPIError(f"HTTP request failed: {e}")
     if resp.status_code == 401:
-        raise RuntimeError(f"401 UNAUTHENTICATED from Jules API. Check API key.\nBody: {resp.text}")
+        raise JulesAPIError(f"401 UNAUTHENTICATED from Jules API. Check API key.\nBody: {resp.text}")
     if resp.status_code >= 400:
-        raise RuntimeError(f"Jules API returned {resp.status_code}:\n{resp.text}")
+        raise JulesAPIError(f"Jules API returned {resp.status_code}:\n{resp.text}")
     try:
         return resp.json()
     except ValueError:
-        raise RuntimeError(f"Invalid JSON response: {resp.text[:2000]}")
+        raise JulesAPIError(f"Invalid JSON response: {resp.text[:2000]}")
 
 def list_sources() -> List[dict]:
     return _http_request("GET", "/sources").get("sources", [])
@@ -63,7 +66,7 @@ def send_message(session_id: str, prompt: str):
 
 def poll_for_result(session_id: str, timeout=POLL_TIMEOUT):
     t0 = time.time()
-    print(f"[+] Polling session {session_id} for up to {timeout}s...")
+    logger.info(f"Polling session {session_id} for up to {timeout}s...")
     while True:
         activities = list_activities(session_id).get("activities", [])
         # newest-first
@@ -85,5 +88,5 @@ def poll_for_result(session_id: str, timeout=POLL_TIMEOUT):
                 if out.get("pullRequest"):
                     return {"type": "pr", "pr": out["pullRequest"], "session": sess}
         if time.time() - t0 > timeout:
-            raise TimeoutError("Timed out waiting for Jules outputs.")
+            raise JulesAPIError("Timed out waiting for Jules outputs.")
         time.sleep(POLL_INTERVAL)
