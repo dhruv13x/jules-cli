@@ -1,16 +1,21 @@
-import time
-from ..git.vcs import git_create_branch_and_commit, git_push_branch
+from ..git.vcs import git_create_branch_and_commit, git_push_branch, git_current_branch
 from ..utils.logging import logger
 
-def cmd_commit_and_push():
-    # create branch with timestamp
-    ts = int(time.time())
-    branch = f"jules/auto-{ts}"
+def cmd_commit_and_push(
+    commit_message: str = "chore: automated changes from Jules",
+    branch_type: str = "feature",
+):
     try:
-        git_create_branch_and_commit(branch, commit_message="chore: automated changes from Jules")
+        git_create_branch_and_commit(
+            commit_message=commit_message,
+            branch_type=branch_type,
+        )
     except Exception as e:
         logger.error("Failed to commit: %s", e)
         return {"status": "error", "message": f"Failed to commit: {e}"}
+
+    branch = git_current_branch()
+
     try:
         git_push_branch(branch)
         logger.info(f"Pushed branch {branch}")

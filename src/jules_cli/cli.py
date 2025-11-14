@@ -14,6 +14,7 @@ from .commands.apply import cmd_apply
 from .commands.commit import cmd_commit_and_push
 from .commands.pr import cmd_create_pr
 from .commands.doctor import run_doctor_command
+from .commands.stage import cmd_stage
 from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
 from .state import _state
@@ -142,11 +143,24 @@ def apply():
         print_json(result, pretty=_state.get("pretty"))
 
 @app.command()
-def commit():
+def commit(
+    commit_message: str = typer.Option(
+        "chore: automated changes from Jules",
+        "--message",
+        "-m",
+        help="Commit message.",
+    ),
+    branch_type: str = typer.Option(
+        "feature",
+        "--type",
+        "-t",
+        help="Branch type (e.g., fix, feature, chore).",
+    ),
+):
     """
     Commit & create branch after apply (if patch applied locally).
     """
-    result = cmd_commit_and_push()
+    result = cmd_commit_and_push(commit_message=commit_message, branch_type=branch_type)
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
 
@@ -161,15 +175,40 @@ def push():
         print_json(result, pretty=_state.get("pretty"))
 
 @pr_app.command("create")
-def pr_create():
+def pr_create(
+    title: str = typer.Option("Automated fix from Jules CLI", "--title", "-t", help="PR title."),
+    body: str = typer.Option("Auto PR", "--body", "-b", help="PR body."),
+    draft: bool = typer.Option(False, "--draft", help="Create a draft PR."),
+    labels: str = typer.Option(None, "--labels", "-l", help="Comma-separated labels."),
+    reviewers: str = typer.Option(None, "--reviewers", "-r", help="Comma-separated reviewers."),
+    assignees: str = typer.Option(None, "--assignees", "-a", help="Comma-separated assignees."),
+    issue: int = typer.Option(None, "--issue", "-i", help="Linked issue number."),
+):
     """
     Create a GitHub PR from last branch (requires GITHUB_TOKEN).
     """
-    pr_url = cmd_create_pr()
+    pr_url = cmd_create_pr(
+        title=title,
+        body=body,
+        draft=draft,
+        labels=labels.split(",") if labels else None,
+        reviewers=reviewers.split(",") if reviewers else None,
+        assignees=assignees.split(",") if assignees else None,
+        issue=issue,
+    )
     if _state.get("session_id"):
         add_history_record(session_id=_state.get("session_id"), pr_url=pr_url, status="pr_created")
     if _state.get("json_output"):
         print_json({"pr_url": pr_url}, pretty=_state.get("pretty"))
+
+@app.command()
+def stage():
+    """
+    Interactively stage changes.
+    """
+    result = cmd_stage()
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
 
 @app.command()
 def doctor():
