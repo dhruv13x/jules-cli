@@ -4,7 +4,7 @@ from ..state import _state
 from ..utils.logging import logger
 import json
 
-def run_task(user_prompt: str, repo_dir_name: str = "bot_platform", automation_mode: Optional[str] = "AUTO_CREATE_PR"):
+def run_task(user_prompt: str, repo_dir_name: str = "bot_platform", automation_mode: Optional[str] = "AUTO_CREATE_PR", auto: bool = False):
     # pick source
     source_obj = pick_source_for_repo(repo_dir_name)
     if not source_obj:
