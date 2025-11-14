@@ -6,9 +6,10 @@ def cmd_apply():
     res = _state.get("last_result")
     if not res:
         logger.warning("No last result to apply.")
-        return
+        return {"status": "error", "message": "No last result to apply."}
     if res["type"] != "patch":
         logger.warning("Last result is not a patch. It may be a PR artifact.")
-        return
+        return {"status": "error", "message": "Last result is not a patch."}
     patch = res["patch"]
     apply_patch_text(patch)
+    return {"status": "success", "message": "Patch applied."}

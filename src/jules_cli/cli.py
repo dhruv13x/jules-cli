@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """
-Jules Interactive CLI (Option C - immersive assistant)
+Jules Interactive CLI
 """
-
 import os
-import shlex
-import json
-import argparse
+import typer
+from typing_extensions import Annotated
 
 from .commands.auto import auto_fix_command
 from .commands.task import run_task
@@ -23,107 +21,41 @@ from .utils.environment import check_env
 from .utils.logging import logger, setup_logging
 from .utils.exceptions import JulesError
 from .utils.config import config
+from .utils.output import print_json
 
-WELCOME = """
-Jules Interactive CLI — fully immersive developer assistant.
+app = typer.Typer(
+    help="Jules Interactive CLI — fully immersive developer assistant.",
+    add_completion=False,
+    no_args_is_help=True,
+    rich_markup_mode="markdown",
+)
 
-Commands:
-  auto                      Run pytest and auto-fix failures
-  task "your instruction"    Ask Jules to perform arbitrary dev task (bugfix/refactor/tests/docs)
-  session list              List sessions
-  session show <SESSION_ID> Show session details
-  history                   List all sessions
-  history view <SESSION_ID> Show session details by id
-  apply                     Apply last patch received
-  commit                    Commit & create branch after apply (if patch applied locally)
-  push                      Push branch to origin
-  pr create                 Create a GitHub PR from last branch (requires GITHUB_TOKEN)
-  doctor                    Run environment validation checks
-  last                      Show last result/session
-  help                      Show this help
-  exit                      Quit
-"""
+session_app = typer.Typer(name="session", help="Manage sessions.")
+history_app = typer.Typer(name="history", help="View session history.")
+pr_app = typer.Typer(name="pr", help="Manage pull requests.")
 
-def repl():
-    logger.info(WELCOME)
-    while True:
-        try:
-            raw = input("jules> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            logger.info("\nExiting.")
-            break
-        if not raw:
-            continue
-        parts = shlex.split(raw)
-        cmd = parts[0].lower()
-        args = parts[1:]
-        try:
-            if cmd in ("exit", "quit"):
-                break
-            elif cmd == "help":
-                logger.info(WELCOME)
-            elif cmd == "auto":
-                auto_fix_command()
-            elif cmd == "task":
-                # join remainder as the prompt
-                prompt = raw[len("task"):].strip()
-                if not prompt:
-                    logger.warning("Usage: task \"Your description here\"")
-                    continue
-                # if user wraps with quotes, strip them
-                if (prompt.startswith('"') and prompt.endswith('"')) or (prompt.startswith("'") and prompt.endswith("'")):
-                    prompt = prompt[1:-1]
-                _state["session_id"] = os.urandom(8).hex()
-                run_task(prompt)
-                add_history_record(session_id=_state["session_id"], prompt=prompt, status="task_run")
-            elif cmd == "session" and args and args[0] == "list":
-                cmd_session_list()
-            elif cmd == "session" and args and args[0] == "show" and len(args) > 1:
-                cmd_session_show(args[1])
-            elif cmd == "history" and not args:
-                cmd_history_list()
-            elif cmd == "history" and args and args[0] == "view" and len(args) > 1:
-                cmd_history_view(args[1])
-            elif cmd == "apply":
-                cmd_apply()
-                if _state.get("session_id"):
-                    add_history_record(session_id=_state.get("session_id"), patch=_state.get("last_patch"), status="patched")
-            elif cmd == "commit":
-                cmd_commit_and_push()
-            elif cmd == "push":
-                # assume last created branch is current; push current branch
-                branch = git_current_branch()
-                git_push_branch(branch)
-            elif cmd == "pr" and args and args[0] == "create":
-                pr_url = cmd_create_pr()
-                if _state.get("session_id"):
-                    add_history_record(session_id=_state.get("session_id"), pr_url=pr_url, status="pr_created")
-            elif cmd == "doctor":
-                json_output = "--json" in args
-                run_doctor_command(json_output=json_output)
-            elif cmd == "last":
-                logger.info("current_session: %s", json.dumps(_state.get("current_session"), indent=2))
-                logger.info("last_result: %s", json.dumps(_state.get("last_result"), indent=2))
-            else:
-                logger.warning("Unknown command. Type 'help' for commands.")
-        except JulesError as e:
-            logger.error(e)
-        except Exception as e:
-            logger.error("An unexpected error occurred: %s", e)
+app.add_typer(session_app)
+app.add_typer(history_app)
+app.add_typer(pr_app)
 
-
-def main():
-    parser = argparse.ArgumentParser(description="Jules Interactive CLI")
-    parser.add_argument("--debug", action="store_true", help="Enable debug logging.")
-    parser.add_argument("--no-color", action="store_true", help="Disable colored output.")
-    args = parser.parse_args()
-
+@app.callback()
+def main(
+    debug: bool = typer.Option(False, "--debug", help="Enable debug logging."),
+    no_color: bool = typer.Option(False, "--no-color", help="Disable colored output."),
+    json_output: bool = typer.Option(False, "--json", help="Output in JSON format."),
+    pretty: bool = typer.Option(False, "--pretty", help="Pretty-print JSON output."),
+):
+    _state["json_output"] = json_output
+    _state["pretty"] = pretty
+    """
+    Jules CLI
+    """
     log_level = config.get("log_level", "INFO").upper()
-    if args.debug:
+    if debug:
         log_level = "DEBUG"
 
     color_mode = config.get("color_mode", "auto")
-    use_color = not args.no_color and color_mode != "off"
+    use_color = not no_color and color_mode != "off"
 
     setup_logging(level=log_level, color=use_color)
 
@@ -131,7 +63,7 @@ def main():
         check_env()
     except JulesError as e:
         logger.error(e)
-        return
+        raise typer.Exit(code=1)
 
     logger.info("Jules CLI starting. JULES_API_KEY detected.")
 
@@ -139,13 +71,122 @@ def main():
         init_db()
     except JulesError as e:
         logger.error("Failed to initialize database: %s", e)
-        return
+        raise typer.Exit(code=1)
 
-    repl()
+
+@app.command()
+def auto():
+    """
+    Run pytest and auto-fix failures.
+    """
+    result = auto_fix_command()
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@app.command()
+def task(prompt: str):
+    """
+    Ask Jules to perform an arbitrary dev task (bugfix/refactor/tests/docs).
+    """
+    _state["session_id"] = os.urandom(8).hex()
+    result = run_task(prompt)
+    add_history_record(session_id=_state["session_id"], prompt=prompt, status="task_run")
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@session_app.command("list")
+def session_list():
+    """
+    List sessions.
+    """
+    result = cmd_session_list()
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@session_app.command("show")
+def session_show(session_id: str):
+    """
+    Show session details.
+    """
+    result = cmd_session_show(session_id)
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@history_app.command("list")
+def history_list():
+    """
+    List all sessions.
+    """
+    result = cmd_history_list()
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@history_app.command("view")
+def history_view(session_id: str):
+    """
+    Show session details by id.
+    """
+    result = cmd_history_view(session_id)
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@app.command()
+def apply():
+    """
+    Apply last patch received.
+    """
+    result = cmd_apply()
+    if _state.get("session_id"):
+        add_history_record(session_id=_state.get("session_id"), patch=_state.get("last_patch"), status="patched")
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@app.command()
+def commit():
+    """
+    Commit & create branch after apply (if patch applied locally).
+    """
+    result = cmd_commit_and_push()
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@app.command()
+def push():
+    """
+    Push branch to origin.
+    """
+    branch = git_current_branch()
+    result = git_push_branch(branch)
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@pr_app.command("create")
+def pr_create():
+    """
+    Create a GitHub PR from last branch (requires GITHUB_TOKEN).
+    """
+    pr_url = cmd_create_pr()
+    if _state.get("session_id"):
+        add_history_record(session_id=_state.get("session_id"), pr_url=pr_url, status="pr_created")
+    if _state.get("json_output"):
+        print_json({"pr_url": pr_url}, pretty=_state.get("pretty"))
+
+@app.command()
+def doctor():
+    """
+    Run environment validation checks.
+    """
+    result = run_doctor_command()
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
 
 if __name__ == "__main__":
     try:
-        main()
+        app()
+    except JulesError as e:
+        logger.error(e)
+        raise typer.Exit(code=1)
     except Exception as e:
         logger.critical("Fatal error: %s", e)
-        raise
+        raise typer.Exit(code=1)
