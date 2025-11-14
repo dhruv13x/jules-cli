@@ -11,10 +11,12 @@ import argparse
 from .commands.auto import auto_fix_command
 from .commands.task import run_task
 from .commands.session import cmd_session_list, cmd_session_show
+from .commands.history import cmd_history_list, cmd_history_view
 from .commands.apply import cmd_apply
 from .commands.commit import cmd_commit_and_push
 from .commands.pr import cmd_create_pr
 from .commands.doctor import run_doctor_command
+from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
 from .state import _state
 from .utils.environment import check_env
@@ -30,6 +32,8 @@ Commands:
   task "your instruction"    Ask Jules to perform arbitrary dev task (bugfix/refactor/tests/docs)
   session list              List sessions
   session show <SESSION_ID> Show session details
+  history                   List all sessions
+  history view <SESSION_ID> Show session details by id
   apply                     Apply last patch received
   commit                    Commit & create branch after apply (if patch applied locally)
   push                      Push branch to origin
@@ -69,13 +73,21 @@ def repl():
                 # if user wraps with quotes, strip them
                 if (prompt.startswith('"') and prompt.endswith('"')) or (prompt.startswith("'") and prompt.endswith("'")):
                     prompt = prompt[1:-1]
+                _state["session_id"] = os.urandom(8).hex()
                 run_task(prompt)
+                add_history_record(session_id=_state["session_id"], prompt=prompt, status="task_run")
             elif cmd == "session" and args and args[0] == "list":
                 cmd_session_list()
             elif cmd == "session" and args and args[0] == "show" and len(args) > 1:
                 cmd_session_show(args[1])
+            elif cmd == "history" and not args:
+                cmd_history_list()
+            elif cmd == "history" and args and args[0] == "view" and len(args) > 1:
+                cmd_history_view(args[1])
             elif cmd == "apply":
                 cmd_apply()
+                if _state.get("session_id"):
+                    add_history_record(session_id=_state.get("session_id"), patch=_state.get("last_patch"), status="patched")
             elif cmd == "commit":
                 cmd_commit_and_push()
             elif cmd == "push":
@@ -83,7 +95,9 @@ def repl():
                 branch = git_current_branch()
                 git_push_branch(branch)
             elif cmd == "pr" and args and args[0] == "create":
-                cmd_create_pr()
+                pr_url = cmd_create_pr()
+                if _state.get("session_id"):
+                    add_history_record(session_id=_state.get("session_id"), pr_url=pr_url, status="pr_created")
             elif cmd == "doctor":
                 json_output = "--json" in args
                 run_doctor_command(json_output=json_output)
@@ -120,6 +134,13 @@ def main():
         return
 
     logger.info("Jules CLI starting. JULES_API_KEY detected.")
+
+    try:
+        init_db()
+    except JulesError as e:
+        logger.error("Failed to initialize database: %s", e)
+        return
+
     repl()
 
 if __name__ == "__main__":
