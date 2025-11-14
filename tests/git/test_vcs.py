@@ -8,7 +8,7 @@ def test_git_current_branch_success(mock_run_cmd):
     branch = vcs.git_current_branch()
     assert branch == "my-branch"
 
-@patch('src.jules_cli.utils.commands.run_cmd', return_value=(1, "", "error"))
+@patch('src.jules_cli.git.vcs.run_cmd', return_value=(1, "", "error"))
 def test_git_current_branch_error(mock_run_cmd):
     with patch.object(vcs, 'run_cmd', return_value=(1, "", "error")):
         try:
@@ -18,7 +18,7 @@ def test_git_current_branch_error(mock_run_cmd):
 
 @patch('src.jules_cli.utils.commands.run_cmd')
 def test_git_create_branch_and_commit_success(mock_run_cmd):
-    mock_run_cmd.side_effect = [(0, "", ""), (0, "", ""), (0, "", "")]
+    mock_run_cmd.side_effect = [(0, "", ""), (0, "", ""), (0, "", ""), (0, "", "")]
     with patch('time.time', return_value=12345):
         vcs.git_create_branch_and_commit("new-branch")
         expected_calls = [
@@ -28,11 +28,11 @@ def test_git_create_branch_and_commit_success(mock_run_cmd):
         ]
         mock_run_cmd.assert_has_calls(expected_calls)
     # cleanup
-    vcs.run_cmd(["git", "checkout", "main"])
-    vcs.run_cmd(["git", "branch", "-D", "jules/auto-12345"])
+    mock_run_cmd(["git", "checkout", "main"])
+    mock_run_cmd(["git", "branch", "-D", "jules/auto-12345"])
 
 
-@patch('src.jules_cli.utils.commands.run_cmd', return_value=(1, "", "error"))
+@patch('src.jules_cli.git.vcs.run_cmd', return_value=(1, "", "error"))
 def test_git_create_branch_and_commit_error(mock_run_cmd):
     with patch.object(vcs, 'run_cmd', return_value=(1, "", "error")):
         with patch('time.time', return_value=12345):
@@ -41,16 +41,17 @@ def test_git_create_branch_and_commit_error(mock_run_cmd):
             except GitError as e:
                 assert "Failed to create branch" in str(e)
 
-@patch('src.jules_cli.utils.commands.run_cmd', return_value=(0, "", ""))
+@patch('src.jules_cli.utils.commands.run_cmd')
 def test_git_push_branch_success(mock_run_cmd):
-    vcs.run_cmd(["git", "checkout", "-b", "my-branch"])
+    mock_run_cmd.side_effect = [(0, "", ""), (0, "", ""), (0, "", "")]
+    mock_run_cmd(["git", "checkout", "-b", "my-branch"])
     vcs.git_push_branch("my-branch")
     mock_run_cmd.assert_called_with(["git", "push", "-u", "origin", "my-branch"], capture=False)
     # cleanup
-    vcs.run_cmd(["git", "checkout", "main"])
-    vcs.run_cmd(["git", "branch", "-D", "my-branch"])
+    mock_run_cmd(["git", "checkout", "main"])
+    mock_run_cmd(["git", "branch", "-D", "my-branch"])
 
-@patch('src.jules_cli.utils.commands.run_cmd', return_value=(1, "", "error"))
+@patch('src.jules_cli.git.vcs.run_cmd', return_value=(1, "", "error"))
 def test_git_push_branch_error(mock_run_cmd):
     with patch.object(vcs, 'run_cmd', return_value=(1, "", "error")):
         try:
