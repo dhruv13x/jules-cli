@@ -2,3 +2,4 @@ requests
 toml
 pytest
 pytest-cov
+python-slugify

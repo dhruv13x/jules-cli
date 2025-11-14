@@ -21,11 +21,11 @@ def test_git_current_branch_error(mock_run_cmd):
 @patch('time.time', return_value=12345)
 def test_git_create_branch_and_commit_success(mock_time, mock_run_cmd):
     mock_run_cmd.return_value = (0, "", "")
-    vcs.git_create_branch_and_commit("new-branch")
+    vcs.git_create_branch_and_commit(commit_message="new feature", branch_type="feature")
     expected_calls = [
-        call(['git', 'checkout', '-b', 'jules/auto-12345'], capture=False),
+        call(['git', 'checkout', '-b', 'feature/new-feature-12345'], capture=False),
         call(['git', 'add', '-A'], capture=False),
-        call(['git', 'commit', '-m', 'jules: automated fix'], capture=False)
+        call(['git', 'commit', '-m', "new feature"], capture=False)
     ]
     mock_run_cmd.assert_has_calls(expected_calls)
 
