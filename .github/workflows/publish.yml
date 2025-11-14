@@ -7,9 +7,11 @@ on:
 
 permissions:
   id-token: write
+  contents: read
 
 jobs:
-  build:
+  publish:
+    environment: pypi       # <-- REQUIRED
     runs-on: ubuntu-latest
 
     steps:
@@ -18,13 +20,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
-      - name: Install build backend
+      - name: Install build
         run: pip install build
 
       - name: Build package
         run: python -m build
 
-      - name: Publish to PyPI
+      - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
