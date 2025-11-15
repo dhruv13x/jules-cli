@@ -42,6 +42,7 @@ app.add_typer(pr_app)
 @app.callback()
 def main(
     debug: bool = typer.Option(False, "--debug", help="Enable debug logging."),
+    verbose: bool = typer.Option(False, "--verbose", help="Enable verbose logging."),
     no_color: bool = typer.Option(False, "--no-color", help="Disable colored output."),
     json_output: bool = typer.Option(False, "--json", help="Output in JSON format."),
     pretty: bool = typer.Option(False, "--pretty", help="Pretty-print JSON output."),
@@ -54,6 +55,8 @@ def main(
     log_level = config.get("log_level", "INFO").upper()
     if debug:
         log_level = "DEBUG"
+    elif verbose:
+        log_level = "VERBOSE"
 
     color_mode = config.get("color_mode", "auto")
     use_color = not no_color and color_mode != "off"

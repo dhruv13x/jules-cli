@@ -3,3 +3,6 @@ toml
 pytest
 pytest-cov
 python-slugify
+pytest-json-report
+typer
+setuptools
