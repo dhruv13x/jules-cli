@@ -1,5 +1,6 @@
 import os
 import time
+import hashlib
 import requests
 from slugify import slugify
 from ..utils.commands import run_cmd
@@ -14,14 +15,24 @@ def git_current_branch() -> str:
         raise GitError("Failed to get current branch.")
     return out.strip()
 
+def git_is_clean() -> bool:
+    code, out, _ = run_cmd(["git", "status", "--porcelain"])
+    if code != 0:
+        raise GitError("Failed to get git status.")
+    return not out.strip()
+
 def git_create_branch_and_commit(
     commit_message: str = "jules: automated fix",
     branch_type: str = "feature",
 ):
 
-    slug = slugify(commit_message)
-    ts = int(time.time())
-    branch_name = f"{branch_type}/{slug}-{ts}"
+    summary = commit_message.split("\n")[0]
+    slug = slugify(summary)
+
+    # Add a short hash to prevent branch name collisions
+    short_hash = hashlib.sha1(str(time.time()).encode()).hexdigest()[:6]
+
+    branch_name = f"{branch_type}/{slug}-{short_hash}"
 
     code, _, err = run_cmd(["git", "checkout", "-b", branch_name], capture=False)
     if code != 0:
