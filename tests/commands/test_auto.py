@@ -1,3 +1,5 @@
+# tests/commands/test_auto.py
+
 from unittest.mock import patch
 from src.jules_cli.commands import auto
 

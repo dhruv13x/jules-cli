@@ -1,3 +1,5 @@
+# src/jules_cli/commands/doctor.py
+
 import os
 import json
 import shutil
@@ -32,7 +34,35 @@ def check_github_token():
 def check_config_file():
     return f"Config file found at {DEFAULT_CONFIG_PATH}." if os.path.exists(DEFAULT_CONFIG_PATH) else "Config file not found."
 
-def run_doctor_command(json_output=False):
+def check_dependencies():
+    """
+    Check if all dependencies from requirements.txt are installed.
+    """
+    try:
+        import pkg_resources
+    except ImportError:
+        return "Could not check dependencies: pkg_resources not found."
+
+    try:
+        with open("requirements.txt") as f:
+            requirements = [line.strip() for line in f if line.strip()]
+    except FileNotFoundError:
+        return "Could not find requirements.txt."
+
+    missing = []
+    for req in requirements:
+        try:
+            pkg_resources.get_distribution(req)
+        except pkg_resources.DistributionNotFound:
+            missing.append(req)
+
+    if not missing:
+        return "All dependencies are installed."
+    else:
+        return f"Missing dependencies: {', '.join(missing)}"
+
+
+def run_doctor_command():
     checks = {
         "JULES_API_KEY": check_jules_api_key(),
         "Git": check_git_installed(),
@@ -41,11 +71,10 @@ def run_doctor_command(json_output=False):
         "Internet": check_internet_connectivity(),
         "GitHub Token": check_github_token(),
         "Config File": check_config_file(),
+        "Dependencies": check_dependencies(),
     }
 
-    if json_output:
-        logger.info(json.dumps(checks, indent=2))
-    else:
-        logger.info("Jules Environment Doctor")
-        for check, result in checks.items():
-            logger.info(f"- {check}: {result}")
+    logger.info("Jules Environment Doctor")
+    for check, result in checks.items():
+        logger.info(f"- {check}: {result}")
+    return checks

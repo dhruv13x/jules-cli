@@ -1,3 +1,5 @@
+# tests/utils/test_exceptions.py
+
 from src.jules_cli.utils.exceptions import JulesError, JulesAPIError, GitError, PatchError, TestRunnerError, ConfigError
 
 def test_jules_error():

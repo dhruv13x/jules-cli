@@ -1,3 +1,5 @@
+# tests/utils/test_environment.py
+
 from unittest.mock import patch
 from src.jules_cli.utils import environment
 from src.jules_cli.utils.exceptions import JulesError

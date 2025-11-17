@@ -1,3 +1,5 @@
+# tests/commands/test_doctor_extra.py
+
 from unittest.mock import patch
 from src.jules_cli.commands import doctor
 
@@ -38,5 +40,5 @@ def test_run_doctor_command_json(mock_logger):
          patch('src.jules_cli.commands.doctor.check_internet_connectivity', return_value='ok'), \
          patch('src.jules_cli.commands.doctor.check_github_token', return_value='ok'), \
          patch('src.jules_cli.commands.doctor.check_config_file', return_value='ok'):
-        doctor.run_doctor_command(json_output=True)
-        mock_logger.info.assert_called_once()
+        doctor.run_doctor_command()
+        assert mock_logger.info.call_count > 1

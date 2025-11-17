@@ -1,3 +1,5 @@
+# tests/core/test_api.py
+
 from unittest.mock import patch, MagicMock
 from src.jules_cli.core import api
 from src.jules_cli.utils.exceptions import JulesAPIError

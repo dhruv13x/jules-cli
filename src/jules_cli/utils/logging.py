@@ -1,5 +1,13 @@
+# src/jules_cli/utils/logging.py
 
 import logging
+
+# -----------------
+# Custom Log Levels
+# -----------------
+VERBOSE = 15
+logging.addLevelName(VERBOSE, "VERBOSE")
+
 
 # -----------------
 # Setup initial logger
@@ -48,6 +56,7 @@ class ColorFormatter(logging.Formatter):
         super().__init__(*args, **kwargs)
         self.FORMATS = {
             logging.DEBUG: self.GREY + "%(levelname)s" + self.RESET + ": %(message)s",
+            VERBOSE: self.BLUE + "%(levelname)s" + self.RESET + ": %(message)s",
             logging.INFO: self.GREEN + "%(levelname)s" + self.RESET + ": %(message)s",
             logging.WARNING: self.YELLOW + "%(levelname)s" + self.RESET + ": %(message)s",
             logging.ERROR: self.RED + "%(levelname)s" + self.RESET + ": %(message)s",

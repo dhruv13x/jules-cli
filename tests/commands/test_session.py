@@ -1,3 +1,5 @@
+# tests/commands/test_session.py
+
 from unittest.mock import patch
 from src.jules_cli.commands import session
 

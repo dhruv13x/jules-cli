@@ -1,3 +1,5 @@
+# src/jules_cli/utils/exceptions.py
+
 class JulesError(Exception):
     """Base class for all Jules CLI errors."""
     pass

@@ -1,3 +1,5 @@
+# tests/utils/test_config.py
+
 from unittest.mock import patch, mock_open
 from src.jules_cli.utils.config import Config, ConfigError
 

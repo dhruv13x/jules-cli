@@ -1,3 +1,5 @@
+# src/jules_cli/patch/apply.py
+
 import os
 from ..utils.commands import run_cmd
 from ..utils.logging import logger

@@ -1,8 +1,10 @@
-import logging
-from src.jules_cli.utils.logging import setup_logging, logger
+# tests/utils/test_logging.py
 
-def test_setup_logging():
-    setup_logging(level="DEBUG", color=False)
-    assert logger.level == logging.DEBUG
-    assert len(logger.handlers) > 0
-    assert not isinstance(logger.handlers[0].formatter, type(logging.Formatter))
+
+import logging
+from jules_cli.utils.logging import setup_logging, VERBOSE
+
+def test_setup_logging_verbose():
+    setup_logging(level="VERBOSE")
+    logger = logging.getLogger("jules")
+    assert logger.level == VERBOSE

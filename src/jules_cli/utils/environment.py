@@ -1,3 +1,5 @@
+# src/jules_cli/utils/environment.py
+
 import os
 from .exceptions import JulesError
 
