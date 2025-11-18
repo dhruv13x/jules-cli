@@ -1,10 +1,10 @@
 # tests/test_vcs_extra.py
 
 from unittest.mock import patch
-from src.jules_cli.git import vcs
-from src.jules_cli.utils.exceptions import GitError
+from jules_cli.git import vcs
+from jules_cli.utils.exceptions import GitError
 
-@patch('src.jules_cli.git.vcs.run_cmd', return_value=(1, "", "error"))
+@patch('jules_cli.git.vcs.run_cmd', return_value=(1, "", "error"))
 def test_git_create_branch_and_commit_add_error(mock_run_cmd):
     with patch('time.time', return_value=12345):
         try:
@@ -12,7 +12,7 @@ def test_git_create_branch_and_commit_add_error(mock_run_cmd):
         except GitError as e:
             assert "Failed to create branch" in str(e)
 
-@patch('src.jules_cli.git.vcs.run_cmd', side_effect=[(0, "", ""), (1, "", "error")])
+@patch('jules_cli.git.vcs.run_cmd', side_effect=[(0, "", ""), (1, "", "error")])
 def test_git_create_branch_and_commit_commit_error(mock_run_cmd):
     with patch('time.time', return_value=12345):
         try:
@@ -20,7 +20,7 @@ def test_git_create_branch_and_commit_commit_error(mock_run_cmd):
         except GitError as e:
             assert "Failed to add files" in str(e)
 
-@patch('src.jules_cli.git.vcs.run_cmd', side_effect=[(0, "", ""), (0, "", ""), (1, "", "error")])
+@patch('jules_cli.git.vcs.run_cmd', side_effect=[(0, "", ""), (0, "", ""), (1, "", "error")])
 def test_git_create_branch_and_commit_final_error(mock_run_cmd):
     with patch('time.time', return_value=12345):
         try:
@@ -28,9 +28,9 @@ def test_git_create_branch_and_commit_final_error(mock_run_cmd):
         except GitError as e:
             assert "Failed to commit changes" in str(e)
 
-@patch('src.jules_cli.git.vcs.requests.post')
+@patch('jules_cli.git.vcs.requests.post')
 def test_github_create_pr_no_token(mock_post):
-    with patch('src.jules_cli.git.vcs.GITHUB_TOKEN', None):
+    with patch('jules_cli.git.vcs.GITHUB_TOKEN', None):
         try:
             vcs.github_create_pr("owner", "repo", "head")
         except GitError as e:

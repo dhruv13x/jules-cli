@@ -1,7 +1,7 @@
 # tests/utils/test_config.py
 
 from unittest.mock import patch, mock_open
-from src.jules_cli.utils.config import Config, ConfigError
+from jules_cli.utils.config import Config, ConfigError
 
 def test_config_from_file_success():
     mock_toml_data = 'default_repo = "my-repo"'

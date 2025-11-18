@@ -6,6 +6,7 @@ Jules Interactive CLI
 """
 import os
 import typer
+from typer import Context
 from typing_extensions import Annotated
 
 from .commands.auto import auto_fix_command
@@ -43,6 +44,7 @@ app.add_typer(pr_app)
 
 @app.callback()
 def main(
+    ctx: typer.Context,
     debug: bool = typer.Option(False, "--debug", help="Enable debug logging."),
     verbose: bool = typer.Option(False, "--verbose", help="Enable verbose logging."),
     no_color: bool = typer.Option(False, "--no-color", help="Disable colored output."),
@@ -65,19 +67,21 @@ def main(
 
     setup_logging(level=log_level, color=use_color)
 
-    try:
-        check_env()
-    except JulesError as e:
-        logger.error(e)
-        raise typer.Exit(code=1)
+    # Skip environment and DB checks for the 'doctor' command
+    if ctx.invoked_subcommand != "doctor":
+        try:
+            check_env()
+        except JulesError as e:
+            logger.error(e)
+            raise typer.Exit(code=1)
 
-    logger.info("Jules CLI starting. JULES_API_KEY detected.")
+        # logger.info("Jules CLI starting. JULES_API_KEY detected.") # This line was commented out in previous step
 
-    try:
-        init_db()
-    except JulesError as e:
-        logger.error("Failed to initialize database: %s", e)
-        raise typer.Exit(code=1)
+        try:
+            init_db()
+        except Exception as e:
+            logger.error("Failed to initialize database: %s", e)
+            raise typer.Exit(code=1)
 
 
 @app.command()

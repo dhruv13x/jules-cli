@@ -7,9 +7,9 @@ import sqlite3
 import os
 from pathlib import Path
 
-from src.jules_cli.db import get_db_path, init_db, add_history_record
-from src.jules_cli.commands.history import cmd_history_list, cmd_history_view
-from src.jules_cli.state import _state
+from jules_cli.db import get_db_path, init_db, add_history_record
+from jules_cli.commands.history import cmd_history_list, cmd_history_view
+from jules_cli.state import _state
 
 class TestDB(unittest.TestCase):
 
@@ -17,8 +17,8 @@ class TestDB(unittest.TestCase):
         # Use a temporary database for testing
         self.test_db_path = Path('./test_history.db')
         _state["session_id"] = "test_session_id"
-        self.db_patcher = patch('src.jules_cli.db.get_db_path', return_value=self.test_db_path)
-        self.history_patcher = patch('src.jules_cli.commands.history.get_db_path', return_value=self.test_db_path)
+        self.db_patcher = patch('jules_cli.db.get_db_path', return_value=self.test_db_path)
+        self.history_patcher = patch('jules_cli.commands.history.get_db_path', return_value=self.test_db_path)
         self.db_patcher.start()
         self.history_patcher.start()
 
@@ -52,7 +52,7 @@ class TestDB(unittest.TestCase):
         self.assertEqual(row[5], "test_status")
         con.close()
 
-    @patch('src.jules_cli.commands.history.logger')
+    @patch('jules_cli.commands.history.logger')
     def test_03_cmd_history_list(self, mock_logger):
         """Test that the history list command works."""
         init_db()
@@ -115,7 +115,7 @@ class TestDB(unittest.TestCase):
 
         con.close()
 
-    @patch('src.jules_cli.commands.history.logger')
+    @patch('jules_cli.commands.history.logger')
     def test_04_cmd_history_view(self, mock_logger):
         """Test that the history view command works."""
         init_db()

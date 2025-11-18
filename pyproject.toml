@@ -3,7 +3,7 @@ name = "jules-cli"
 version = "1.0.0"
 description = "A developer CLI for Jules API automation"
 readme = "README.md"
-authors = [{ name = "Dhruv Pal Singh Bose" }]
+    authors = [{ name = "dhruv13x" }]
 requires-python = ">=3.8"
 dependencies = ["requests"]
 
@@ -13,3 +13,37 @@ jules = "jules_cli.cli:main"
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+addopts = [
+    "--timeout=10",
+    "--durations=10",
+    "--log-cli-level=INFO",
+    "-v",
+    "-ra",
+    "--tb=short",
+    "--showlocals",
+
+    "--cov=src",
+
+    "--cov-report=term-missing:skip-covered",
+    "--cov-fail-under=90",
+]
+
+[tool.coverage.run]
+branch = true
+source = [
+    "src",
+]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true

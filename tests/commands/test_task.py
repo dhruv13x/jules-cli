@@ -1,12 +1,12 @@
 # tests/commands/test_task.py
 
 from unittest.mock import patch, MagicMock
-from src.jules_cli.commands import task
-from src.jules_cli.core import api
+from jules_cli.commands import task
+from jules_cli.core import api
 
-@patch('src.jules_cli.commands.task.pick_source_for_repo')
-@patch('src.jules_cli.commands.task.create_session')
-@patch('src.jules_cli.commands.task.poll_for_result')
+@patch('jules_cli.commands.task.pick_source_for_repo')
+@patch('jules_cli.commands.task.create_session')
+@patch('jules_cli.commands.task.poll_for_result')
 def test_run_task_success(mock_poll, mock_create, mock_pick):
     mock_pick.return_value = {"name": "source", "githubRepo": {"owner": "owner", "repo": "repo"}}
     mock_create.return_value = {"id": "session_id"}

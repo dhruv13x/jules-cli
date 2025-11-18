@@ -1,7 +1,7 @@
 # tests/utils/test_commands.py
 
 from unittest.mock import patch
-from src.jules_cli.utils import commands
+from jules_cli.utils import commands
 
 @patch('subprocess.run')
 def test_run_cmd_capture(mock_subprocess):

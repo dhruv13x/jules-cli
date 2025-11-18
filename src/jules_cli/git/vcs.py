@@ -64,10 +64,11 @@ def github_create_pr(
     reviewers: list = None,
     assignees: list = None,
 ):
-    if not GITHUB_TOKEN:
+    github_token = os.getenv("GITHUB_TOKEN")
+    if not github_token:
         raise GitError("GITHUB_TOKEN not set; cannot create PR automatically.")
     url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
-    headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
+    headers = {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
     data = {
         "head": head,
         "base": base,

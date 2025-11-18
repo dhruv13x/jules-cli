@@ -2,8 +2,8 @@
 
 import os
 import pytest
-from src.jules_cli.commands import task
-from tests.fixtures.fake_api import start_fake_api
+from jules_cli.commands import task
+from ..fixtures.fake_api import start_fake_api
 
 @pytest.fixture(scope="module")
 def fake_api():

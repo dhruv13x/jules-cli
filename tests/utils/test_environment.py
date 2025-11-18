@@ -1,8 +1,8 @@
 # tests/utils/test_environment.py
 
 from unittest.mock import patch
-from src.jules_cli.utils import environment
-from src.jules_cli.utils.exceptions import JulesError
+from jules_cli.utils import environment
+from jules_cli.utils.exceptions import JulesError
 
 @patch.dict(environment.os.environ, {"JULES_API_KEY": "test_key"})
 def test_check_env_success():

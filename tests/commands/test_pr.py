@@ -1,11 +1,11 @@
 # tests/commands/test_pr.py
 
 from unittest.mock import patch
-from src.jules_cli.commands import pr
-from src.jules_cli.state import _state
+from jules_cli.commands import pr
+from jules_cli.state import _state
 
-@patch('src.jules_cli.commands.pr.git_current_branch', return_value="my-branch")
-@patch('src.jules_cli.commands.pr.github_create_pr', return_value={"html_url": "pr_url"})
+@patch('jules_cli.commands.pr.git_current_branch', return_value="my-branch")
+@patch('jules_cli.commands.pr.github_create_pr', return_value={"html_url": "pr_url"})
 def test_cmd_create_pr_success(mock_create_pr, mock_current_branch):
     _state["repo_owner"] = "owner"
     _state["repo_name"] = "repo"
@@ -24,8 +24,8 @@ def test_cmd_create_pr_success(mock_create_pr, mock_current_branch):
             assignees=None,
         )
 
-@patch('src.jules_cli.commands.pr.git_current_branch', return_value="my-branch")
-@patch('src.jules_cli.commands.pr.github_create_pr', return_value={"html_url": "pr_url"})
+@patch('jules_cli.commands.pr.git_current_branch', return_value="my-branch")
+@patch('jules_cli.commands.pr.github_create_pr', return_value={"html_url": "pr_url"})
 def test_cmd_create_pr_with_issue_success(mock_create_pr, mock_current_branch):
     _state["repo_owner"] = "owner"
     _state["repo_name"] = "repo"

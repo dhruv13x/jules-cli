@@ -1,11 +1,11 @@
 # tests/patch/test_patch.py
 
 from unittest.mock import patch
-from src.jules_cli.patch import apply
-from src.jules_cli.utils.exceptions import PatchError
+from jules_cli.patch import apply
+from jules_cli.utils.exceptions import PatchError
 import os
 
-@patch('src.jules_cli.patch.apply.run_cmd', return_value=(0, "", ""))
+@patch('jules_cli.patch.apply.run_cmd', return_value=(0, "", ""))
 def test_apply_patch_text_success(mock_run_cmd):
     with open("file_to_patch.txt", "w") as f:
         f.write("hello")
@@ -16,7 +16,7 @@ def test_apply_patch_text_success(mock_run_cmd):
     assert os.path.exists("tmp_patch.diff") is False
     os.remove("file_to_patch.txt")
 
-@patch('src.jules_cli.patch.apply.run_cmd', return_value=(1, "out", "err"))
+@patch('jules_cli.patch.apply.run_cmd', return_value=(1, "out", "err"))
 def test_apply_patch_text_error(mock_run_cmd):
     try:
         apply.apply_patch_text("fake_patch_text")
