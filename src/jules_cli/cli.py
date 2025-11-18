@@ -49,11 +49,11 @@ def main(
     json_output: bool = typer.Option(False, "--json", help="Output in JSON format."),
     pretty: bool = typer.Option(False, "--pretty", help="Pretty-print JSON output."),
 ):
+    """
+    Initializes the CLI application, sets up logging, and handles global options.
+    """
     _state["json_output"] = json_output
     _state["pretty"] = pretty
-    """
-    Jules CLI
-    """
     log_level = config.get("log_level", "INFO").upper()
     if debug:
         log_level = "DEBUG"
