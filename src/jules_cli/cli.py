@@ -52,7 +52,8 @@ def main(
     _state["json_output"] = json_output
     _state["pretty"] = pretty
     """
-    Jules CLI
+    This function serves as the entry point for the CLI application.
+    It sets up logging, checks the environment, and initializes the database.
     """
     log_level = config.get("log_level", "INFO").upper()
     if debug:
