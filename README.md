@@ -12,13 +12,6 @@ Designed for real-world workflows, CI pipelines, and local debugging sessions.
 
 ---
 
-## ⚠️ Disclaimer
-
-`jules-cli` is an experimental project.
-It is not an official Google product and is not covered by any Google warranty or support agreement. Use at your own risk.
-
----
-
 ## 🚀 Features
 
 ### 🔧 Automated Test Fixer
@@ -68,24 +61,6 @@ git clone https://github.com/dhruv13x/jules-cli cd jules-cli pip install -e .
 
 ---
 
-## 💻 Development
-
-To set up a development environment, install the editable version of the CLI, then install the required dependencies for testing:
-
-```bash
-pip install -r requirements.txt
-```
-
-### Running Tests
-
-The test suite is built on `pytest`. To run the full suite:
-
-```bash
-python -m pytest
-```
-
----
-
 ## ⚙️ Environment Setup
 
 Before using the CLI, set:
@@ -101,6 +76,18 @@ export GITHUB_TOKEN="ghp_xxx..."
 (Optional) Set your Git identity:
 
 git config --global user.name "Your Name" git config --global user.email "you@example.com"
+
+### **3. Configuration File (optional)**
+
+You can also store your API key and other settings in a configuration file located at `~/.config/jules/config.toml`.
+
+```toml
+[jules]
+api_key = "your_key_here"
+
+[github]
+token = "ghp_xxx..."
+```
 
 ---
 
@@ -159,6 +146,13 @@ jules> session show 1234567890
 
 jules> last
 
+### 🩺 `doctor` – Check your environment
+Verifies that your environment is correctly configured to run `jules-cli`. Checks for:
+- `JULES_API_KEY`
+- `GITHUB_TOKEN` (optional)
+- Git installation
+- Internet connectivity
+
 ---
 
 ## 🧩 Example Workflow
@@ -187,25 +181,15 @@ jules> task "Add pytest tests for projectclone cli"
 🏗 Project Structure
 
 jules-cli/
+│
 ├── src/
 │   └── jules_cli/
-│       ├── commands/  # CLI command implementations
-│       ├── core/      # Core interaction with Jules API
-│       ├── git/       # Git and GitHub utilities
-│       ├── patch/     # Patch management
-│       ├── pytest/    # Pytest integration
-│       ├── utils/     # Shared helper functions
-│       ├── cli.py     # Main CLI entrypoint (Typer app)
-│       ├── __init__.py
-│       ├── cache.py
-│       ├── db.py      # Database interaction (history)
-│       └── state.py   # Global state management
+│       ├── cli.py
+│       └── __init__.py
 │
-├── tests/             # Pytest test suite
-│
-├── .github/           # GitHub Actions workflows
-├── pyproject.toml     # Project metadata and dependencies
-└── README.md          # You are here
+├── pyproject.toml
+├── README.md
+└── .github/workflows/publish.yml
 
 
 ---
