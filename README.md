@@ -12,6 +12,13 @@ Designed for real-world workflows, CI pipelines, and local debugging sessions.
 
 ---
 
+## ⚠️ Disclaimer
+
+`jules-cli` is an experimental project.
+It is not an official Google product and is not covered by any Google warranty or support agreement. Use at your own risk.
+
+---
+
 ## 🚀 Features
 
 ### 🔧 Automated Test Fixer
@@ -58,6 +65,24 @@ pip install jules-cli
 ### From source (editable)
 
 git clone https://github.com/dhruv13x/jules-cli cd jules-cli pip install -e .
+
+---
+
+## 💻 Development
+
+To set up a development environment, install the editable version of the CLI, then install the required dependencies for testing:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Running Tests
+
+The test suite is built on `pytest`. To run the full suite:
+
+```bash
+python -m pytest
+```
 
 ---
 
@@ -162,15 +187,25 @@ jules> task "Add pytest tests for projectclone cli"
 🏗 Project Structure
 
 jules-cli/
-│
 ├── src/
 │   └── jules_cli/
-│       ├── cli.py
-│       └── __init__.py
+│       ├── commands/  # CLI command implementations
+│       ├── core/      # Core interaction with Jules API
+│       ├── git/       # Git and GitHub utilities
+│       ├── patch/     # Patch management
+│       ├── pytest/    # Pytest integration
+│       ├── utils/     # Shared helper functions
+│       ├── cli.py     # Main CLI entrypoint (Typer app)
+│       ├── __init__.py
+│       ├── cache.py
+│       ├── db.py      # Database interaction (history)
+│       └── state.py   # Global state management
 │
-├── pyproject.toml
-├── README.md
-└── .github/workflows/publish.yml
+├── tests/             # Pytest test suite
+│
+├── .github/           # GitHub Actions workflows
+├── pyproject.toml     # Project metadata and dependencies
+└── README.md          # You are here
 
 
 ---
