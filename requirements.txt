@@ -7,3 +7,4 @@ pytest-json-report
 typer
 setuptools
 PyYAML
+anthropic

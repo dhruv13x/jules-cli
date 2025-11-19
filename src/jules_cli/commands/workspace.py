@@ -3,6 +3,7 @@ import typer
 import yaml
 import subprocess
 from pathlib import Path
+import shlex
 
 app = typer.Typer(name="workspace", help="Manage workspaces.")
 
@@ -30,4 +31,4 @@ def run(command: str):
             continue
 
         print(f"Running command in '{repo['name']}': {command}")
-        subprocess.run(command.split(), cwd=repo_path, check=True)
+        subprocess.run(shlex.split(command), cwd=str(repo_path), check=True)
