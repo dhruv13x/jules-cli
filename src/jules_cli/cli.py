@@ -23,6 +23,7 @@ from .commands.doctor import run_doctor_command
 from .commands.stage import cmd_stage
 from .commands.plan import cmd_approve, cmd_reject
 from .commands.workspace import app as workspace_app
+from .commands.suggest import cmd_suggest
 from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
 from .state import _state
@@ -306,6 +307,15 @@ def doctor():
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
 
+
+@app.command()
+def suggest(
+    focus: str = typer.Option(None, "--focus", "-f", help="Limit suggestions to a specific area (security, tests, etc).")
+):
+    """
+    Proactively scan the codebase and suggest improvements.
+    """
+    cmd_suggest(focus=focus)
 
 if __name__ == "__main__":
     try:
