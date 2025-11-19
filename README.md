@@ -1,5 +1,7 @@
 # jules-cli
 
+> **Disclaimer:** This is an experimental project and not an official Google product.
+
 [![PyPI Version](https://img.shields.io/pypi/v/jules-cli.svg)](https://pypi.org/project/jules-cli/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/jules-cli)
 [![License](https://img.shields.io/github/license/dhruv13x/jules-cli)](LICENSE)
@@ -51,13 +53,19 @@ Secure, isolated, and simple.
 
 ## 📦 Installation
 
-### From PyPI (recommended)
+### From PyPI (Recommended)
 
+```bash
 pip install jules-cli
+```
 
-### From source (editable)
+### From Source (Editable)
 
-git clone https://github.com/dhruv13x/jules-cli cd jules-cli pip install -e .
+```bash
+git clone https://github.com/dhruv13x/jules-cli
+cd jules-cli
+pip install -e .
+```
 
 ---
 
@@ -83,11 +91,15 @@ git config --global user.name "Your Name" git config --global user.email "you@ex
 
 ### Open the REPL
 
+```bash
 jules
+```
 
 You’ll see:
 
+```
 Jules Interactive CLI — fully immersive developer assistant.
+```
 
 Commands: auto task "instruction" apply commit push pr create session list ...
 
@@ -156,6 +168,39 @@ Add tests
 
 jules> task "Add pytest tests for projectclone cli"
 
+
+---
+
+## 💻 Development
+
+### Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/dhruv13x/jules-cli
+    cd jules-cli
+    ```
+
+2.  **Install dependencies:**
+    This project uses `pip` for dependency management.
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Install the CLI in editable mode:**
+    This allows you to test your local changes.
+    ```bash
+    pip install -e .
+    ```
+
+### Running Tests
+
+The test suite is built with `pytest`.
+
+To run all tests:
+```bash
+python -m pytest
+```
 
 ---
 
