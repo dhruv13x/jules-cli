@@ -5,10 +5,17 @@
 [![License](https://img.shields.io/github/license/dhruv13x/jules-cli)](LICENSE)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dhruv13x/jules-cli/publish.yml?label=PyPI%20Publish)](https://github.com/dhruv13x/jules-cli/actions)
 
-A fully automated **developer assistant CLI** built on the **Jules API** (Google’s experimental code automation system).  
-`jules-cli` lets you run tests, fix bugs, apply patches, refactor code, and even create GitHub pull requests — all from your terminal.
+A fully automated **developer assistant CLI** built on the **Jules API** (Google’s experimental code automation system). `jules-cli` lets you run tests, fix bugs, apply patches, refactor code, and even create GitHub pull requests — all from your terminal.
+
+This tool is a command-line interface (`jules-cli`) that interacts with the experimental **Jules API**. Throughout this document, `jules-cli` refers to the command-line tool, while **Jules** refers to the underlying generative AI coding assistant.
 
 Designed for real-world workflows, CI pipelines, and local debugging sessions.
+
+---
+
+## 📜 Disclaimer
+
+`jules-cli` is an experimental, community-driven project and not an official Google product. The underlying Jules API is also experimental. As such, functionality may change, and the tool is provided as-is without any guarantees.
 
 ---
 
@@ -76,6 +83,51 @@ export GITHUB_TOKEN="ghp_xxx..."
 (Optional) Set your Git identity:
 
 git config --global user.name "Your Name" git config --global user.email "you@example.com"
+
+---
+
+## 💻 Development
+
+### Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/dhruv13x/jules-cli
+    cd jules-cli
+    ```
+
+2.  **Install development dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Install the CLI in editable mode:**
+    This is crucial for `pytest` to discover the modules correctly.
+    ```bash
+    pip install -e .
+    ```
+
+### Running Tests
+
+The test suite is executed using `pytest`. The `python -m` prefix is important to ensure the package is correctly added to the Python path.
+
+```bash
+python -m pytest
+```
+
+To run tests for a specific file:
+
+```bash
+python -m pytest tests/test_cli.py
+```
+
+To run the full test suite and generate a coverage report:
+
+```bash
+python -m pytest --cov=src/jules_cli --cov-report=term-missing --cov-fail-under=97
+```
+
+*Note: The tests in `tests/git/` are known to time out and are currently ignored in the default `pytest` configuration.*
 
 ---
 
@@ -161,17 +213,31 @@ jules> task "Add pytest tests for projectclone cli"
 
 🏗 Project Structure
 
+The project follows a standard Python CLI application layout.
+
+```
 jules-cli/
 │
 ├── src/
 │   └── jules_cli/
-│       ├── cli.py
-│       └── __init__.py
+│       ├── commands/     # CLI command implementations (e.g., auto, task)
+│       ├── core/         # Core logic for Jules API interaction
+│       ├── git/          # Git-related utilities
+│       ├── patch/        # Patch management and application
+│       ├── pytest/       # Pytest integration hooks
+│       ├── utils/        # Shared helper functions
+│       │
+│       ├── cli.py        # Main Typer application and entry point
+│       ├── cache.py      # Caching mechanisms
+│       ├── db.py         # Database interaction (history)
+│       └── state.py      # Global state management
 │
-├── pyproject.toml
-├── README.md
-└── .github/workflows/publish.yml
-
+├── tests/              # Pytest unit and integration tests
+│
+├── .github/            # GitHub Actions workflows
+├── pyproject.toml      # Project metadata and dependencies
+└── README.md           # You are here
+```
 
 ---
 
