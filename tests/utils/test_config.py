@@ -3,7 +3,7 @@
 import os
 import toml
 from unittest.mock import patch, mock_open
-from src.jules_cli.utils.config import Config, DEFAULT_CONFIG_PATH
+from jules_cli.utils.config import Config, DEFAULT_CONFIG_PATH
 
 def test_config_from_file_creates_default_config():
     with patch("os.path.exists", return_value=False), \
@@ -33,7 +33,7 @@ def test_config_save():
         m.assert_called_once_with("/tmp/dummy_path", "w")
         dump_mock.assert_called_once_with({"core": {"default_repo": "test"}}, m())
 
-@patch("src.jules_cli.utils.config.Config.create_default_config")
+@patch("jules_cli.utils.config.Config.create_default_config")
 def test_config_from_file_raises_error(mock_create_default):
     with patch("builtins.open", side_effect=Exception("test error")):
         try:
