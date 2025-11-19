@@ -53,6 +53,10 @@ def main(
     json_output: bool = typer.Option(False, "--json", help="Output in JSON format."),
     pretty: bool = typer.Option(False, "--pretty", help="Pretty-print JSON output."),
 ):
+    """
+    Main entry point for the Jules CLI.
+    Initializes logging, checks the environment, and sets up the database.
+    """
     _state["json_output"] = json_output
     _state["pretty"] = pretty
     """
