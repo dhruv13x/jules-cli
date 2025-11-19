@@ -2,7 +2,7 @@
 
 
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, ANY
 import sqlite3
 import os
 from pathlib import Path
@@ -129,6 +129,20 @@ class TestDB(unittest.TestCase):
         self.assertIn("test_session_view", all_logs)
         self.assertIn("view prompt", all_logs)
         self.assertIn("view_status", all_logs)
+
+    @patch('jules_cli.db.sqlite3.connect', side_effect=sqlite3.Error("Test DB Error"))
+    @patch('jules_cli.db.logger')
+    def test_init_db_error(self, mock_logger, mock_sqlite_connect):
+        with self.assertRaisesRegex(sqlite3.Error, "Test DB Error"):
+            init_db()
+        mock_logger.error.assert_called_once_with("Database error: %s", ANY)
+
+    @patch('jules_cli.db.sqlite3.connect', side_effect=sqlite3.Error("Test Add/Update DB Error"))
+    @patch('jules_cli.db.logger')
+    def test_add_history_record_error(self, mock_logger, mock_sqlite_connect):
+        with self.assertRaisesRegex(sqlite3.Error, "Test Add/Update DB Error"):
+            add_history_record(session_id="test_session_error", prompt="test prompt")
+        mock_logger.error.assert_called_once_with("Failed to add/update history record: %s", ANY)
 
 
 if __name__ == '__main__':

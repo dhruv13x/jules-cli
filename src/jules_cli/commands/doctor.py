@@ -4,6 +4,7 @@ import os
 import json
 import shutil
 import socket
+import importlib.metadata # Added this line
 from ..utils.logging import logger
 from ..utils.config import DEFAULT_CONFIG_PATH, config
 from ..utils.commands import run_cmd
@@ -39,11 +40,6 @@ def check_dependencies():
     Check if all dependencies from requirements.txt are installed.
     """
     try:
-        import pkg_resources
-    except ImportError:
-        return "Could not check dependencies: pkg_resources not found."
-
-    try:
         with open("requirements.txt") as f:
             requirements = [line.strip() for line in f if line.strip()]
     except FileNotFoundError:
@@ -52,8 +48,8 @@ def check_dependencies():
     missing = []
     for req in requirements:
         try:
-            pkg_resources.get_distribution(req)
-        except pkg_resources.DistributionNotFound:
+            importlib.metadata.version(req)
+        except importlib.metadata.PackageNotFoundError:
             missing.append(req)
 
     if not missing:

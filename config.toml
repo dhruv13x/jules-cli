@@ -1,0 +1,12 @@
+[core]
+default_repo = "sources/github/dhruv13x/jules-cli"
+default_branch = "main"
+api_timeout = 60
+logging_level = "INFO"
+
+[git]
+name = "Jules CLI User"
+email = "jules-cli@example.com"
+
+[branch]
+pattern = "{type}/{slug}/{timestamp}"

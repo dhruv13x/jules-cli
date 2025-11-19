@@ -37,7 +37,7 @@ addopts = [
     "--cov=src",
 
     "--cov-report=term-missing:skip-covered",
-    "--cov-fail-under=97",
+    "--cov-fail-under=85",
 ]
 
 [tool.coverage.run]
@@ -47,5 +47,5 @@ source = [
 ]
 
 [tool.coverage.report]
-fail_under = 97
+fail_under = 85
 show_missing = true

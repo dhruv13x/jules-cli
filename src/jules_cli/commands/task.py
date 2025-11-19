@@ -45,4 +45,28 @@ def run_task(user_prompt: str, repo_dir_name: Optional[str] = None, automation_m
     elif result["type"] == "pr":
         pr = result.get("pr")
         logger.info("PR artifact: %s", json.dumps(pr, indent=2))
+    elif result["type"] == "message":
+        message = result.get("message")
+        logger.info(f"Jules message: {message}")
+    elif result["type"] == "plan":
+        plan = result.get("plan")
+        logger.info(f"Jules plan generated:")
+        for step in plan.get("steps", []):
+            logger.info(f"- {step.get('title')}: {step.get('description')}")
+        logger.info("Use `jules approve` to approve the plan or `jules reject` to reject it.")
+    elif result["type"] == "session_status":
+        status = result["status"]
+        session = result["session"]
+        logger.info(f"Jules session {session['id']} reached state: {status}")
+        if status == "COMPLETED":
+            logger.info("Session completed without generating specific artifacts.")
+        elif status == "FAILED":
+            logger.error("Session failed.")
+        elif status == "CANCELLED":
+            logger.warning("Session cancelled.")
+        elif status == "PLANNING":
+            logger.info("Session is in PLANNING state. Jules is likely waiting for further instructions.")
+            # TODO: Consider how to retrieve and display the agent's interactive message here.
+        else:
+            logger.info(f"Session in unexpected state: {status}")
     return result

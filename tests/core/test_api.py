@@ -55,8 +55,10 @@ def test_http_request_json_error(mock_request):
     except JulesAPIError as e:
         assert "Invalid JSON response" in str(e)
 
+@patch('jules_cli.core.api.get_session')
 @patch('jules_cli.core.api.list_activities')
-def test_poll_for_result_patch(mock_list_activities):
+@patch('time.sleep', return_value=None) # Mock time.sleep to avoid actual delays
+def test_poll_for_result_patch(mock_sleep, mock_list_activities, mock_get_session):
     mock_list_activities.return_value = {
         "activities": [
             {
@@ -72,7 +74,8 @@ def test_poll_for_result_patch(mock_list_activities):
             }
         ]
     }
-    result = api.poll_for_result("fake_session_id", timeout=1)
+    mock_get_session.return_value = {"id": "fake_session_id", "state": "PLANNING", "outputs": []} # Return a basic session state
+    result = api.poll_for_result("fake_session_id", timeout=10) # Increased timeout
     assert result["type"] == "patch"
     assert result["patch"] == "fake_patch"
 

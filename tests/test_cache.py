@@ -54,6 +54,61 @@ class TestCache(unittest.TestCase):
         # V-e-r-i-f-y that the cache file was deleted
         self.assertFalse(self.cache_file.exists())
 
+    @patch('jules_cli.cache.logger')
+    def test_load_from_cache_invalid_json(self, mock_logger):
+        # Create a cache file with invalid JSON
+        with open(self.cache_file, "w", encoding="utf-8") as f:
+            f.write("invalid json")
+
+        # Attempt to load data from the cache
+        loaded_data = load_from_cache(self.cache_key)
+
+        # Verify that the loaded data is None and a warning was logged
+        self.assertIsNone(loaded_data)
+        mock_logger.warning.assert_called_once()
+        self.assertIn("Failed to load from cache", mock_logger.warning.call_args[0][0])
+
+    @patch('jules_cli.cache.logger')
+    @patch('builtins.open', side_effect=IOError("Test IOError"))
+    def test_load_from_cache_io_error(self, mock_open, mock_logger):
+        # Create a dummy cache file to ensure open is called
+        self.cache_file.touch()
+
+        # Attempt to load data from the cache
+        loaded_data = load_from_cache(self.cache_key)
+
+        # Verify that the loaded data is None and a warning was logged
+        self.assertIsNone(loaded_data)
+        mock_logger.warning.assert_called_once()
+        self.assertIn("Failed to load from cache", mock_logger.warning.call_args[0][0])
+        self.assertIn("Test IOError", mock_logger.warning.call_args[0][0])
+
+    @patch('jules_cli.cache.logger')
+    @patch('builtins.open', side_effect=IOError("Test IOError"))
+    def test_save_to_cache_io_error(self, mock_open, mock_logger):
+        # Attempt to save data to the cache
+        save_to_cache(self.cache_key, self.test_data)
+
+        # Verify that an error was logged
+        mock_logger.error.assert_called_once()
+        self.assertIn("Failed to save to cache", mock_logger.error.call_args[0][0])
+        self.assertIn("Test IOError", mock_logger.error.call_args[0][0])
+
+    @patch('jules_cli.cache.logger')
+    @patch('os.remove', side_effect=OSError("Test OSError"))
+    def test_clear_cache_os_error(self, mock_os_remove, mock_logger):
+        # Create a dummy cache file to ensure os.remove is called
+        self.cache_file.touch()
+
+        # Attempt to clear the cache
+        clear_cache(self.cache_key)
+
+        # Verify that an error was logged
+        mock_logger.error.assert_called_once()
+        self.assertIn("Failed to clear cache", mock_logger.error.call_args[0][0])
+        self.assertIn("Test OSError", mock_logger.error.call_args[0][0])
+
+
     @patch('jules_cli.commands.apply.apply_patch_text')
     def test_patch_caching(self, mock_apply_patch_text):
         # S-e-t up the state for the apply command
