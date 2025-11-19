@@ -23,6 +23,34 @@ def git_is_clean() -> bool:
         raise GitError("Failed to get git status.")
     return not out.strip()
 
+def git_get_remote_repo_info():
+    """
+    Tries to get (owner, repo) from git remote origin.
+    """
+    code, out, _ = run_cmd(["git", "remote", "get-url", "origin"])
+    if code != 0:
+        return None, None
+    
+    url = out.strip()
+    # Remove .git suffix if present
+    if url.endswith(".git"):
+        url = url[:-4]
+        
+    # Handle SSH: git@github.com:owner/repo
+    if "github.com:" in url:
+        part = url.split("github.com:")[-1]
+    # Handle HTTPS: https://github.com/owner/repo
+    elif "github.com/" in url:
+        part = url.split("github.com/")[-1]
+    else:
+        return None, None
+        
+    if "/" not in part:
+        return None, None
+        
+    parts = part.split("/", 1)
+    return parts[0], parts[1]
+
 def git_create_branch_and_commit(
     commit_message: str = "jules: automated fix",
     branch_type: str = "feature",

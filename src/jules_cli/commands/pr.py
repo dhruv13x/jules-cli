@@ -2,7 +2,7 @@
 
 from typing import List
 from ..state import _state
-from ..git.vcs import git_current_branch, github_create_pr
+from ..git.vcs import git_current_branch, github_create_pr, git_get_remote_repo_info
 import os
 from ..utils.logging import logger
 from ..cache import save_to_cache
@@ -21,10 +21,19 @@ def cmd_create_pr(
     if not GITHUB_TOKEN:
         logger.error("GITHUB_TOKEN not set; cannot create PR.")
         return {"status": "error", "message": "GITHUB_TOKEN not set."}
-    owner = _state.get("repo_owner"); repo = _state.get("repo_name")
+    
+    owner = _state.get("repo_owner")
+    repo = _state.get("repo_name")
+
+    # Fallback: try to detect from git config
     if not owner or not repo:
-        logger.warning("No repo detected in state. Run a task first.")
-        return {"status": "error", "message": "No repo detected in state."}
+        owner, repo = git_get_remote_repo_info()
+        if owner and repo:
+            logger.info(f"Detected repo from git remote: {owner}/{repo}")
+        else:
+            logger.warning("No repo detected in state or git remote. Run a task first.")
+            return {"status": "error", "message": "No repo detected."}
+            
     # determine current branch to use as head
     head = git_current_branch()
 
