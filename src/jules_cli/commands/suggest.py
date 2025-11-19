@@ -1,6 +1,5 @@
 # src/jules_cli/commands/suggest.py
 
-import typer
 from typing import Optional
 from ..commands.task import run_task
 from ..utils.logging import logger
@@ -20,19 +19,75 @@ Output a detailed plan with specific, actionable steps to address the top 3 most
 Do not execute code yet; wait for approval.
 """
 
+SECURITY_PROMPT = """
+You are a Security Engineer auditing this repository.
+Your goal is to identify security vulnerabilities and enforce best practices.
+
+Please scan the codebase for:
+1. OWASP Top 10 vulnerabilities (e.g., injection, broken auth, sensitive data exposure).
+2. Hardcoded secrets or credentials.
+3. Insecure dependencies or configuration.
+4. Improper error handling that leaks information.
+5. Missing security headers or input validation.
+
+Output a remediation plan for the most critical issues found.
+"""
+
+TESTS_PROMPT = """
+You are a QA Automation Architect.
+Your goal is to improve the test suite coverage and reliability.
+
+Please scan the codebase to find:
+1. Modules with low or missing test coverage.
+2. Complex logic that lacks edge-case tests.
+3. Brittle tests that might fail randomly.
+4. Opportunities for integration or property-based testing.
+
+Output a plan to generate the missing tests or refactor existing ones.
+"""
+
+CHORE_PROMPT = """
+You are a Code Maintainability Expert.
+Your goal is to clean up technical debt and improve project hygiene.
+
+Please scan the repository for:
+1. Outdated dependencies or unused packages.
+2. Dead code, unused imports, or variables.
+3. Inconsistent formatting or style violations (PEP 8, etc.).
+4. Typos in documentation or code comments.
+5. Opportunities to simplify complex functions or reduce cognitive load.
+
+Output a plan to execute these maintenance chores.
+"""
+
 def cmd_suggest(
-    focus: Optional[str] = typer.Option(None, "--focus", "-f", help="Focus area (e.g., security, tests, performance)."),
+    focus: Optional[str] = None,
+    security: bool = False,
+    tests: bool = False,
+    chore: bool = False,
 ):
     """
     Ask Jules to proactively scan the repo and suggest improvements.
     """
-    prompt = MASTER_SUGGEST_PROMPT
-    
-    if focus:
-        prompt += f"\n\nPlease prioritize your analysis on: {focus.upper()}."
+    # Determine the base prompt based on flags
+    if security:
+        prompt = SECURITY_PROMPT
+        logger.info("🔒 Security mode enabled. Auditing for vulnerabilities...")
+    elif tests:
+        prompt = TESTS_PROMPT
+        logger.info("🧪 Test generation mode enabled. Analyzing coverage...")
+    elif chore:
+        prompt = CHORE_PROMPT
+        logger.info("🧹 Chore mode enabled. Looking for cleanup opportunities...")
+    else:
+        prompt = MASTER_SUGGEST_PROMPT
+        logger.info("🧠 Starting general proactive code analysis...")
 
-    logger.info("🧠 Starting proactive code analysis...")
+    # Append specific focus if provided
+    if focus:
+        prompt += f"\n\nAdditionally, please prioritize your analysis on: {focus.upper()}."
+
     logger.info("This may take a moment as Jules reads the repository context...")
     
-    # We reuse run_task because it handles session creation, polling, and result display perfectly.
+    # Reuse run_task for session management
     return run_task(prompt)

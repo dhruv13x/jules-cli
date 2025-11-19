@@ -306,16 +306,20 @@ def doctor():
     result = run_doctor_command()
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
-
-
+        
+        
 @app.command()
 def suggest(
-    focus: str = typer.Option(None, "--focus", "-f", help="Limit suggestions to a specific area (security, tests, etc).")
+    focus: str = typer.Option(None, "--focus", "-f", help="Limit suggestions to a specific area."),
+    security: bool = typer.Option(False, "--security", help="Focus on security vulnerabilities (OWASP, secrets)."),
+    tests: bool = typer.Option(False, "--tests", help="Focus on generating missing tests and improving coverage."),
+    chore: bool = typer.Option(False, "--chore", help="Focus on maintenance, dependencies, and cleanup."),
 ):
     """
     Proactively scan the codebase and suggest improvements.
     """
-    cmd_suggest(focus=focus)
+    cmd_suggest(focus=focus, security=security, tests=tests, chore=chore)
+
 
 if __name__ == "__main__":
     try:
