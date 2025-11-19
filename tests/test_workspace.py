@@ -2,15 +2,15 @@
 import unittest
 from unittest.mock import patch
 from typer.testing import CliRunner
-from src.jules_cli.cli import app
+from jules_cli.cli import app
 import os
 import yaml
 
 class TestWorkspace(unittest.TestCase):
 
-    @patch('src.jules_cli.commands.workspace.subprocess.run')
-    @patch('src.jules_cli.cli.init_db')
-    @patch('src.jules_cli.cli.check_env')
+    @patch('jules_cli.commands.workspace.subprocess.run')
+    @patch('jules_cli.cli.init_db')
+    @patch('jules_cli.cli.check_env')
     def test_workspace_run(self, mock_check_env, mock_init_db, mock_subprocess_run):
         runner = CliRunner()
         with runner.isolated_filesystem():
@@ -37,8 +37,8 @@ class TestWorkspace(unittest.TestCase):
             mock_subprocess_run.assert_any_call(['ls', '-l'], cwd=repo1_dir, check=True)
             mock_subprocess_run.assert_any_call(['ls', '-l'], cwd=repo2_dir, check=True)
 
-    @patch('src.jules_cli.cli.init_db')
-    @patch('src.jules_cli.cli.check_env')
+    @patch('jules_cli.cli.init_db')
+    @patch('jules_cli.cli.check_env')
     def test_missing_workspace_file(self, mock_check_env, mock_init_db):
         runner = CliRunner()
         with runner.isolated_filesystem():
@@ -46,9 +46,9 @@ class TestWorkspace(unittest.TestCase):
             self.assertNotEqual(result.exit_code, 0)
             self.assertIn("Error: workspace.yaml not found.", result.output)
 
-    @patch('src.jules_cli.commands.workspace.subprocess.run')
-    @patch('src.jules_cli.cli.init_db')
-    @patch('src.jules_cli.cli.check_env')
+    @patch('jules_cli.commands.workspace.subprocess.run')
+    @patch('jules_cli.cli.init_db')
+    @patch('jules_cli.cli.check_env')
     def test_missing_repository(self, mock_check_env, mock_init_db, mock_subprocess_run):
         runner = CliRunner()
         with runner.isolated_filesystem():

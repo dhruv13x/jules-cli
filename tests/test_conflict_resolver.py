@@ -1,8 +1,8 @@
 # tests/test_conflict_resolver.py
 import unittest
 from unittest.mock import patch, MagicMock
-from src.jules_cli.patch.apply import apply_patch_text, extract_rejected_hunks
-from src.jules_cli.utils.exceptions import PatchError
+from jules_cli.patch.apply import apply_patch_text, extract_rejected_hunks
+from jules_cli.utils.exceptions import PatchError
 
 class TestConflictResolver(unittest.TestCase):
 
@@ -18,7 +18,7 @@ class TestConflictResolver(unittest.TestCase):
         rejected_hunks = extract_rejected_hunks(patch_output)
         self.assertEqual(rejected_hunks, "- old line\n+ new line\n- another old line\n+ another new line")
 
-    @patch('src.jules_cli.patch.apply.run_cmd')
+    @patch('jules_cli.patch.apply.run_cmd')
     def test_successful_patch_application(self, mock_run_cmd):
         # Mock successful patch application
         mock_run_cmd.return_value = (0, "Success", "")
@@ -28,8 +28,8 @@ class TestConflictResolver(unittest.TestCase):
         # Verify that run_cmd was called once
         mock_run_cmd.assert_called_once()
 
-    @patch('src.jules_cli.patch.resolver.anthropic.Anthropic')
-    @patch('src.jules_cli.patch.apply.run_cmd')
+    @patch('jules_cli.patch.resolver.anthropic.Anthropic')
+    @patch('jules_cli.patch.apply.run_cmd')
     def test_failed_patch_application_with_successful_ai_resolution(self, mock_run_cmd, mock_anthropic):
         # Mock failed patch application followed by successful AI resolution
         mock_run_cmd.side_effect = [(1, "Error", "Hunk #1 FAILED at 1.\n - old line\n + new line"), (0, "Success", "")]
@@ -51,9 +51,9 @@ class TestConflictResolver(unittest.TestCase):
             ],
         )
 
-    @patch('src.jules_cli.patch.apply.logger')
-    @patch('src.jules_cli.patch.resolver.anthropic.Anthropic')
-    @patch('src.jules_cli.patch.apply.run_cmd')
+    @patch('jules_cli.patch.apply.logger')
+    @patch('jules_cli.patch.resolver.anthropic.Anthropic')
+    @patch('jules_cli.patch.apply.run_cmd')
     def test_failed_patch_application_with_failed_ai_resolution(self, mock_run_cmd, mock_anthropic, mock_logger):
         # Mock failed patch application followed by failed AI resolution
         mock_run_cmd.return_value = (1, "Error", "Hunk #1 FAILED at 1.\n - old line\n + new line")
@@ -71,8 +71,8 @@ class TestConflictResolver(unittest.TestCase):
         mock_logger.info.assert_any_call("2. Apply the patch with a different tool, such as `git apply`.")
         mock_logger.info.assert_any_call("3. Discard the patch and start over.")
 
-    @patch('src.jules_cli.patch.resolver.anthropic.Anthropic')
-    @patch('src.jules_cli.patch.apply.run_cmd')
+    @patch('jules_cli.patch.resolver.anthropic.Anthropic')
+    @patch('jules_cli.patch.apply.run_cmd')
     def test_failed_patch_application_and_reapplication(self, mock_run_cmd, mock_anthropic):
         # Mock failed patch application, successful AI resolution, but failed re-application
         mock_run_cmd.side_effect = [(1, "Error", "Hunk #1 FAILED at 1.\n - old line\n + new line"), (1, "Error", "Re-application failed")]

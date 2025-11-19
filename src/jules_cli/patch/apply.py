@@ -11,13 +11,17 @@ def extract_rejected_hunks(patch_output: str) -> str:
     """
     Extracts the rejected hunks from the output of the patch command.
     """
-    hunk_pattern = re.compile(r"Hunk #\d+ FAILED at .*?\n(.*?)(?=Hunk #|\Z)", re.DOTALL)
+    rejected_hunks_content = []
+    # This regex looks for lines that represent removed or added lines in a diff,
+    # often prefixed by a space in patch output.
+    # It specifically targets lines starting with a space then '-' or '+'
+    # followed by the actual content.
+    diff_line_pattern = re.compile(r"^[ ]*([-+].*)$", re.MULTILINE)
 
-    rejected_hunks = []
-    for match in hunk_pattern.finditer(patch_output):
-        rejected_hunks.append(match.group(1).strip())
+    for match in diff_line_pattern.finditer(patch_output):
+        rejected_hunks_content.append(match.group(1))
 
-    return "\n".join(rejected_hunks)
+    return "\n".join(rejected_hunks_content)
 
 def apply_patch_text(patch_text: str):
     tmp = "tmp_patch.diff"

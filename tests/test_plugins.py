@@ -3,15 +3,15 @@ import unittest
 from unittest.mock import patch, MagicMock
 import typer
 from typer.testing import CliRunner
-from src.jules_cli.cli import app, load_plugins
+from jules_cli.cli import app, load_plugins
 from importlib import metadata
 
 runner = CliRunner()
 
 class TestPlugins(unittest.TestCase):
 
-    @patch('src.jules_cli.cli.init_db')
-    @patch('src.jules_cli.cli.check_env')
+    @patch('jules_cli.cli.init_db')
+    @patch('jules_cli.cli.check_env')
     def test_plugin_loading(self, mock_check_env, mock_init_db):
         # C-r-e-a-t-e a dummy plugin
         dummy_app = typer.Typer(name="dummy")

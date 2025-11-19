@@ -3,9 +3,9 @@ import unittest
 import os
 import json
 from pathlib import Path
-from src.jules_cli.cache import load_from_cache, save_to_cache, clear_cache, get_cache_file
-from src.jules_cli.commands.apply import cmd_apply
-from src.jules_cli.state import _state
+from jules_cli.cache import load_from_cache, save_to_cache, clear_cache, get_cache_file
+from jules_cli.commands.apply import cmd_apply
+from jules_cli.state import _state
 from unittest.mock import patch
 
 class TestCache(unittest.TestCase):
@@ -54,7 +54,7 @@ class TestCache(unittest.TestCase):
         # V-e-r-i-f-y that the cache file was deleted
         self.assertFalse(self.cache_file.exists())
 
-    @patch('src.jules_cli.commands.apply.apply_patch_text')
+    @patch('jules_cli.commands.apply.apply_patch_text')
     def test_patch_caching(self, mock_apply_patch_text):
         # S-e-t up the state for the apply command
         _state["last_result"] = self.patch_data
