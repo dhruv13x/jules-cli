@@ -12,6 +12,13 @@ Designed for real-world workflows, CI pipelines, and local debugging sessions.
 
 ---
 
+## ⚠️ Disclaimer
+
+**This is an experimental project.**
+The Jules API is not an official Google product and is subject to change. Do not use this tool in production environments.
+
+---
+
 ## 🚀 Features
 
 ### 🔧 Automated Test Fixer
@@ -57,7 +64,11 @@ pip install jules-cli
 
 ### From source (editable)
 
-git clone https://github.com/dhruv13x/jules-cli cd jules-cli pip install -e .
+```bash
+git clone https://github.com/dhruv13x/jules-cli
+cd jules-cli
+pip install -e .
+```
 
 ---
 
@@ -76,6 +87,38 @@ export GITHUB_TOKEN="ghp_xxx..."
 (Optional) Set your Git identity:
 
 git config --global user.name "Your Name" git config --global user.email "you@example.com"
+
+---
+
+## 💻 Development
+
+### Setup
+
+To set up a local development environment:
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/dhruv13x/jules-cli
+    cd jules-cli
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Install the CLI in editable mode:**
+    ```bash
+    pip install -e .
+    ```
+
+### Running Tests
+
+This project uses `pytest`. To run the full test suite:
+
+```bash
+python -m pytest
+```
 
 ---
 
@@ -136,42 +179,66 @@ jules> last
 
 ---
 
-## 🧩 Example Workflow
+## 🧩 Example Workflows
 
-### Fix test failure automatically
-```bash
-jules
-jules> auto
-jules> apply
-jules> commit
-jules> push
-jules> pr create
+### Fix a Test Failure Automatically
 
-Request refactor
+1.  **Start the interactive REPL:**
+    ```bash
+    jules
+    ```
 
+2.  **Run the automated test fixer:**
+    ```
+    jules> auto
+    ```
+
+3.  **Apply the patch, commit, and create a PR:**
+    ```
+    jules> apply
+    jules> commit
+    jules> push
+    jules> pr create
+    ```
+
+### Request a Refactor
+
+```
 jules> task "Refactor bot_platform/init_manager for clarity"
 jules> apply
+```
 
-Add tests
+### Add New Tests
 
+```
 jules> task "Add pytest tests for projectclone cli"
+```
 
 
 ---
 
 🏗 Project Structure
 
+```
 jules-cli/
-│
 ├── src/
 │   └── jules_cli/
-│       ├── cli.py
-│       └── __init__.py
-│
-├── pyproject.toml
-├── README.md
-└── .github/workflows/publish.yml
-
+│       ├── commands/     # CLI command definitions
+│       ├── core/         # Core logic for Jules API interaction
+│       ├── git/          # Git-related utilities
+│       ├── patch/        # Patch management
+│       ├── pytest/       # Pytest integration
+│       ├── utils/        # Shared helper functions
+│       ├── __init__.py
+│       ├── cache.py      # Caching mechanisms
+│       ├── cli.py        # Main CLI entrypoint (Typer app)
+│       ├── db.py         # Database interaction
+│       └── state.py      # Global state management
+├── tests/              # Pytest test suite
+├── .github/            # GitHub Actions workflows
+├── pyproject.toml      # Project metadata and dependencies
+└── README.md
+```
 
 ---
 
