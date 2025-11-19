@@ -165,8 +165,17 @@ jules-cli/
 │
 ├── src/
 │   └── jules_cli/
-│       ├── cli.py
-│       └── __init__.py
+│       ├── commands/   # CLI command definitions
+│       ├── core/       # Core logic for Jules API interaction
+│       ├── git/        # Git-related utilities
+│       ├── patch/      # Patch management and application
+│       ├── pytest/     # Pytest integration and test runners
+│       ├── utils/      # Shared utilities and helpers
+│       ├── __init__.py
+│       ├── cache.py    # Caching mechanisms
+│       ├── cli.py      # Main CLI application entrypoint (Typer)
+│       ├── db.py       # Database interaction (history, etc.)
+│       └── state.py    # Global state management
 │
 ├── pyproject.toml
 ├── README.md
