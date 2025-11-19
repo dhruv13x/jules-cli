@@ -20,6 +20,7 @@ from .commands.commit import cmd_commit_and_push
 from .commands.pr import cmd_create_pr
 from .commands.doctor import run_doctor_command
 from .commands.stage import cmd_stage
+from .commands.workspace import app as workspace_app
 from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
 from .state import _state
@@ -43,6 +44,7 @@ pr_app = typer.Typer(name="pr", help="Manage pull requests.")
 app.add_typer(session_app)
 app.add_typer(history_app)
 app.add_typer(pr_app)
+app.add_typer(workspace_app)
 
 @app.callback()
 def main(
