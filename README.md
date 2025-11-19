@@ -57,7 +57,12 @@ pip install jules-cli
 
 ### From source (editable)
 
-git clone https://github.com/dhruv13x/jules-cli cd jules-cli pip install -e .
+```bash
+git clone https://github.com/dhruv13x/jules-cli
+cd jules-cli
+pip install -r requirements.txt
+pip install -e .
+```
 
 ---
 
@@ -165,22 +170,40 @@ jules-cli/
 │
 ├── src/
 │   └── jules_cli/
-│       ├── commands/   # CLI command definitions
-│       ├── core/       # Core logic for Jules API interaction
-│       ├── git/        # Git-related utilities
-│       ├── patch/      # Patch management and application
-│       ├── pytest/     # Pytest integration and test runners
-│       ├── utils/      # Shared utilities and helpers
+│       ├── commands/
+│       ├── core/
+│       ├── git/
+│       ├── patch/
+│       ├── pytest/
+│       ├── utils/
 │       ├── __init__.py
-│       ├── cache.py    # Caching mechanisms
-│       ├── cli.py      # Main CLI application entrypoint (Typer)
-│       ├── db.py       # Database interaction (history, etc.)
-│       └── state.py    # Global state management
+│       ├── cache.py
+│       ├── cli.py
+│       ├── db.py
+│       └── state.py
 │
+├── tests/
 ├── pyproject.toml
+├── requirements.txt
 ├── README.md
 └── .github/workflows/publish.yml
 
+
+---
+
+## 💻 Development
+
+### Dependencies
+
+Install the required dependencies for development from `requirements.txt`:
+
+pip install -r requirements.txt
+
+### Running Tests
+
+To run the test suite, use `pytest`:
+
+pytest
 
 ---
 
