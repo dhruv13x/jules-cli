@@ -79,6 +79,33 @@ git config --global user.name "Your Name" git config --global user.email "you@ex
 
 ---
 
+## 💻 Development
+
+### Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/dhruv13x/jules-cli
+    cd jules-cli
+    ```
+
+2.  **Install dependencies:**
+    It's recommended to use a virtual environment.
+    ```bash
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    pip install -e .
+    ```
+
+### Running Tests
+To run the test suite, use `pytest`:
+```bash
+python -m pytest
+```
+
+---
+
 ## 🧪 Usage
 
 ### Open the REPL
