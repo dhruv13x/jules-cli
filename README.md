@@ -5,50 +5,41 @@
 [![License](https://img.shields.io/github/license/dhruv13x/jules-cli)](LICENSE)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dhruv13x/jules-cli/publish.yml?label=PyPI%20Publish)](https://github.com/dhruv13x/jules-cli/actions)
 
-A fully automated **developer assistant CLI** built on the **Jules API** (Google’s experimental code automation system). `jules-cli` lets you run tests, fix bugs, apply patches, refactor code, and even create GitHub pull requests — all from your terminal.
-
-This tool is a command-line interface (`jules-cli`) that interacts with the experimental **Jules API**. Throughout this document, `jules-cli` refers to the command-line tool, while **Jules** refers to the underlying generative AI coding assistant.
+A fully automated **developer assistant CLI** built on the **Jules API** (Google’s experimental code automation system).
+`jules-cli` lets you run tests, fix bugs, apply patches, refactor code, and even create GitHub pull requests — all from your terminal.
 
 Designed for real-world workflows, CI pipelines, and local debugging sessions.
-
----
-
-## 📜 Disclaimer
-
-`jules-cli` is an experimental, community-driven project and not an official Google product. The underlying Jules API is also experimental. As such, functionality may change, and the tool is provided as-is without any guarantees.
 
 ---
 
 ## 🚀 Features
 
 ### 🔧 Automated Test Fixer
-- Runs pytest  
-- Sends failures to the Jules API  
-- Receives automated patches or PRs  
-- Applies patches locally  
-- Re-runs tests  
-- Optional auto-push + auto-PR via GitHub
+- Runs pytest and sends failures to the Jules API for automated patch generation.
+- Applies patches, re-runs tests, and creates GitHub PRs automatically.
 
-### 🤖 AI-Powered Development Assistant
-Issue natural-language commands:
-
-jules task "refactor the user login service" jules task "add test coverage for payment workflows" jules task "fix NullPointer bug in auth module"
-
-Jules performs the work in a dedicated session and returns patches or PRs.
+### ✨ AI-Powered Code Generation & Refactoring
+- **`task`**: Give Jules natural-language instructions to perform any development task.
+  `jules task "add a --verbose flag"`
+- **`refactor`**: Perform repository-wide code improvements.
+  `jules refactor "simplify the error handling in lib/utils.py"`
+- **`testgen`**: Generate unit tests for your code.
+  `jules testgen src/auth.py --type missing`
 
 ### 🔁 Stateful Interactive REPL
-Run:
+- Run `jules` to enter an interactive shell with command history and stateful operations.
+- Chain commands like `auto`, `apply`, `commit`, and `pr create` in a seamless workflow.
 
-jules
+### 🛠️ Full Git & GitHub Integration
+- **`stage`**: Interactively stage file changes.
+- **`commit`**: Automatically create branches and commit applied patches.
+- **`pr create`**: Create detailed GitHub pull requests with labels, reviewers, and assignees.
+- **`workspace`**: Manage multi-repository projects (coming soon).
 
-And access a full command shell:
+### 📖 Session & History Management
+- **`session`**: List and inspect active Jules sessions.
+- **`history`**: Review past activity, including prompts, patches, and PRs.
 
-auto task "..." apply commit push pr create session list session show <id> last exit
-
-### 🛠 GitHub Integration
-- Auto-creates branches  
-- Auto-commits and auto-pushes  
-- Automatically creates PRs using `GITHUB_TOKEN`
 
 ### 🔐 Trusted Auth
 Uses Google's **Jules API** with the `X-Goog-Api-Key` header.  
@@ -86,51 +77,6 @@ git config --global user.name "Your Name" git config --global user.email "you@ex
 
 ---
 
-## 💻 Development
-
-### Setup
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/dhruv13x/jules-cli
-    cd jules-cli
-    ```
-
-2.  **Install development dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  **Install the CLI in editable mode:**
-    This is crucial for `pytest` to discover the modules correctly.
-    ```bash
-    pip install -e .
-    ```
-
-### Running Tests
-
-The test suite is executed using `pytest`. The `python -m` prefix is important to ensure the package is correctly added to the Python path.
-
-```bash
-python -m pytest
-```
-
-To run tests for a specific file:
-
-```bash
-python -m pytest tests/test_cli.py
-```
-
-To run the full test suite and generate a coverage report:
-
-```bash
-python -m pytest --cov=src/jules_cli --cov-report=term-missing --cov-fail-under=97
-```
-
-*Note: The tests in `tests/git/` are known to time out and are currently ignored in the default `pytest` configuration.*
-
----
-
 ## 🧪 Usage
 
 ### Open the REPL
@@ -148,43 +94,65 @@ Commands: auto task "instruction" apply commit push pr create session list ...
 ## 📘 Command Guide
 
 ### 🔥 `auto` – Automatic pytest debugging
-Runs pytest → detects failures → sends to Jules → applies patch or PR.
+Runs `pytest`, detects failures, sends them to Jules, and applies the returned patch.
 
-jules> auto
+`jules> auto`
 
-### 📝 `task "<instruction>"` – Tell Jules anything
-Examples:
+### 📝 `task "<instruction>"` – Run any development task
+Instruct Jules to perform a bug fix, refactor, or add new functionality.
 
-jules> task "refactor utils.py to remove duplicated logic" jules> task "add unit tests for create_dump function" jules> task "fix failing integration test for redis manager"
+`jules> task "refactor utils.py to remove duplicated logic"`
+`jules> task "add unit tests for the create_dump function"`
 
-### 🩹 `apply` – Apply the last patch Jules returned
+### 🔬 `testgen "<file_path>"` – Generate unit tests
+Create new tests for a specific file.
 
-jules> apply
+`jules> testgen src/api/handlers.py --type missing`
 
-### 🌿 `commit` – Auto-create branch & commit patch
+### 🏗️ `refactor "<instruction>"` – Refactor code
+Perform a repository-wide refactor.
 
-jules> commit
+`jules> refactor "simplify error handling throughout the codebase"`
 
-### 🚀 `push` – Push current branch
+### 🩹 `apply` – Apply the last patch
+Applies the most recent patch returned by Jules.
 
-jules> push
+`jules> apply`
 
-### 🔗 `pr create` – Create GitHub pull request
-Requires `GITHUB_TOKEN`.
+### 🌿 `commit` – Create a branch and commit changes
+Commits the applied patch to a new branch.
 
-jules> pr create
+`jules> commit -m "feat: implement user authentication" -t feature`
 
-### 🔍 `session list` – View recent Jules sessions
+### 🚀 `push` – Push the current branch
+Pushes the current branch to the remote repository.
 
-jules> session list
+`jules> push`
 
-### 📖 `session show <id>` – Inspect a session
+### 🔗 `pr create` – Create a GitHub pull request
+Creates a GitHub PR from the current branch. Requires a `GITHUB_TOKEN`.
 
-jules> session show 1234567890
+`jules> pr create --title "feat: new login flow" --labels bug,frontend`
 
-### 📦 `last` – Show last session + result
+### 📖 `history list` – View command history
+Lists all past sessions from the local database.
 
-jules> last
+`jules> history list`
+
+### 📜 `history view <session_id>` – Inspect a session
+Shows detailed information for a specific session.
+
+`jules> history view 1234567890`
+
+### 📦 `stage` – Interactively stage changes
+Allows you to interactively select and stage file changes before committing.
+
+`jules> stage`
+
+### 🩺 `doctor` – Run environment checks
+Validates your environment to ensure all dependencies and configurations are correct.
+
+`jules> doctor`
 
 ---
 
@@ -213,31 +181,25 @@ jules> task "Add pytest tests for projectclone cli"
 
 🏗 Project Structure
 
-The project follows a standard Python CLI application layout.
-
-```
 jules-cli/
-│
 ├── src/
 │   └── jules_cli/
-│       ├── commands/     # CLI command implementations (e.g., auto, task)
-│       ├── core/         # Core logic for Jules API interaction
-│       ├── git/          # Git-related utilities
-│       ├── patch/        # Patch management and application
-│       ├── pytest/       # Pytest integration hooks
-│       ├── utils/        # Shared helper functions
-│       │
-│       ├── cli.py        # Main Typer application and entry point
-│       ├── cache.py      # Caching mechanisms
-│       ├── db.py         # Database interaction (history)
-│       └── state.py      # Global state management
+│       ├── cli.py          # Main CLI entrypoint
+│       ├── commands/       # Subcommand logic
+│       ├── core/           # Jules API client
+│       ├── git/            # Git and VCS utilities
+│       ├── patch/          # Patch application logic
+│       ├── pytest/         # Pytest integration
+│       ├── utils/          # Shared helpers
+│       ├── db.py           # Database management
+│       ├── state.py        # Global state
+│       └── __init__.py
 │
-├── tests/              # Pytest unit and integration tests
-│
-├── .github/            # GitHub Actions workflows
-├── pyproject.toml      # Project metadata and dependencies
-└── README.md           # You are here
-```
+├── tests/                  # Test suite
+├── pyproject.toml
+├── README.md
+└── .github/workflows/publish.yml
+
 
 ---
 
