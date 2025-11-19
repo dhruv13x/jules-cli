@@ -14,9 +14,11 @@ JULES_KEY = os.getenv("JULES_API_KEY")
 BASE = "https://jules.googleapis.com/v1alpha"
 HEADERS = {"X-Goog-Api-Key": JULES_KEY, "Content-Type": "application/json"}
 POLL_INTERVAL = 3
-POLL_TIMEOUT = config.get("api_timeout", 300)
+POLL_TIMEOUT = config.get_nested("core", "api_timeout", 300)
 
-def _http_request(method: str, path: str, json_data: Optional[dict] = None, params: Optional[dict] = None, timeout=60):
+def _http_request(method: str, path: str, json_data: Optional[dict] = None, params: Optional[dict] = None, timeout=None):
+    if timeout is None:
+        timeout = config.get_nested("core", "api_timeout", 60)
     url = f"{BASE}{path}"
     try:
         resp = requests.request(method, url, headers=HEADERS, json=json_data, params=params, timeout=timeout)
@@ -44,12 +46,14 @@ def pick_source_for_repo(repo_name: str) -> Optional[dict]:
             return s
     return None
 
-def create_session(prompt: str, source_name: str, starting_branch="main", title="Jules CLI session", automation_mode=None) -> dict:
+def create_session(prompt: str, source_name: str, starting_branch="main", title="Jules CLI session", automation_mode=None, branch_name: Optional[str] = None) -> dict:
     payload = {
         "prompt": prompt,
         "sourceContext": {"source": source_name, "githubRepoContext": {"startingBranch": starting_branch}},
         "title": title
     }
+    if branch_name:
+        payload["branchName"] = branch_name
     if automation_mode:
         payload["automationMode"] = automation_mode
     return _http_request("POST", "/sessions", json_data=payload)
