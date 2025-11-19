@@ -306,8 +306,8 @@ def doctor():
     result = run_doctor_command()
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
-        
-        
+
+
 @app.command()
 def suggest(
     focus: str = typer.Option(None, "--focus", "-f", help="Limit suggestions to a specific area."),

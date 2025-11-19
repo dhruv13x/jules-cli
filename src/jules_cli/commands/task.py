@@ -8,7 +8,13 @@ from ..utils.branch import generate_branch_name
 from ..utils.config import config
 import json
 
-def run_task(user_prompt: str, repo_dir_name: Optional[str] = None, automation_mode: Optional[str] = "AUTO_CREATE_PR", auto: bool = False):
+def run_task(
+    user_prompt: str,
+    repo_dir_name: Optional[str] = None,
+    automation_mode: Optional[str] = "AUTO_CREATE_PR",
+    auto: bool = False,
+    timeout: Optional[int] = None,  # <-- Added parameter
+):
     if repo_dir_name is None:
         repo_dir_name = config.get_nested("core", "default_repo")
         if not repo_dir_name:
@@ -33,8 +39,12 @@ def run_task(user_prompt: str, repo_dir_name: Optional[str] = None, automation_m
     sid = sess.get("id")
     if not sid:
         raise RuntimeError(f"Failed to create session: {sess}")
-    logger.info(f"Session created: {sid}. Polling for result...")
-    result = poll_for_result(sid)
+    
+    # Use provided timeout or fall back to config default (which poll_for_result handles if None passed, but we want explicit control here)
+    poll_timeout = timeout if timeout is not None else config.get_nested("core", "api_timeout", 120)
+
+    logger.info(f"Session created: {sid}. Polling for result (timeout={poll_timeout}s)...")
+    result = poll_for_result(sid, timeout=poll_timeout) # <-- Pass timeout here
     _state["last_result"] = result
     _state["repo_source"] = source_name
     _state["repo_owner"] = owner
@@ -66,7 +76,6 @@ def run_task(user_prompt: str, repo_dir_name: Optional[str] = None, automation_m
             logger.warning("Session cancelled.")
         elif status == "PLANNING":
             logger.info("Session is in PLANNING state. Jules is likely waiting for further instructions.")
-            # TODO: Consider how to retrieve and display the agent's interactive message here.
         else:
             logger.info(f"Session in unexpected state: {status}")
     return result

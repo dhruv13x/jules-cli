@@ -1,5 +1,6 @@
 # src/jules_cli/commands/suggest.py
 
+import typer
 from typing import Optional
 from ..commands.task import run_task
 from ..utils.logging import logger
@@ -89,5 +90,5 @@ def cmd_suggest(
 
     logger.info("This may take a moment as Jules reads the repository context...")
     
-    # Reuse run_task for session management
-    return run_task(prompt)
+    # Reuse run_task for session management with extended timeout (10 minutes)
+    return run_task(prompt, timeout=600)
