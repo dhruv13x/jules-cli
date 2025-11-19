@@ -8,6 +8,7 @@ import os
 import typer
 from typer import Context
 from typing_extensions import Annotated
+from importlib import metadata
 
 from .commands.auto import auto_fix_command
 from .commands.task import run_task
@@ -45,6 +46,14 @@ app.add_typer(session_app)
 app.add_typer(history_app)
 app.add_typer(pr_app)
 app.add_typer(workspace_app)
+
+def load_plugins():
+    for entry_point in metadata.entry_points(group="jules.plugins"):
+        plugin = entry_point.load()
+        if isinstance(plugin, typer.Typer):
+            app.add_typer(plugin, name=entry_point.name)
+        else:
+            app.command(entry_point.name)(plugin)
 
 @app.callback()
 def main(
@@ -269,6 +278,7 @@ def doctor():
 
 if __name__ == "__main__":
     try:
+        load_plugins()
         app()
     except JulesError as e:
         logger.error(e)

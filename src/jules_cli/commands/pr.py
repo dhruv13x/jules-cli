@@ -5,6 +5,7 @@ from ..state import _state
 from ..git.vcs import git_current_branch, github_create_pr
 import os
 from ..utils.logging import logger
+from ..cache import save_to_cache
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
@@ -44,6 +45,11 @@ def cmd_create_pr(
             assignees=assignees,
         )
         logger.info("Created PR: %s", pr.get("html_url"))
+
+        # Cache the PR metadata
+        cache_key = f"pr_{pr['number']}"
+        save_to_cache(cache_key, pr)
+
         return pr
     except Exception as e:
         logger.error("Failed to create PR: %s", e)

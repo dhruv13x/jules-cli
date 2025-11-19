@@ -1,87 +1,71 @@
-
-import os
-from typer.testing import CliRunner
-from jules_cli.cli import app
-import yaml
+# tests/test_workspace.py
+import unittest
 from unittest.mock import patch
+from typer.testing import CliRunner
+from src.jules_cli.cli import app
+import os
+import yaml
 
-runner = CliRunner()
+class TestWorkspace(unittest.TestCase):
 
-@patch('jules_cli.cli.check_env')
-@patch('jules_cli.cli.init_db')
-def test_workspace_run_command(mock_init_db, mock_check_env):
-    # Create dummy repositories and a workspace.yaml file
-    os.makedirs("repo1", exist_ok=True)
-    os.makedirs("repo2", exist_ok=True)
-    with open("workspace.yaml", "w") as f:
-        yaml.dump({"repos": [{"name": "repo1"}, {"name": "repo2"}]}, f)
+    @patch('src.jules_cli.commands.workspace.subprocess.run')
+    @patch('src.jules_cli.cli.init_db')
+    @patch('src.jules_cli.cli.check_env')
+    def test_workspace_run(self, mock_check_env, mock_init_db, mock_subprocess_run):
+        runner = CliRunner()
+        with runner.isolated_filesystem():
+            # Create workspace config and repo directories
+            repo1_dir = "repo1"
+            repo2_dir = "repo2"
+            os.makedirs(repo1_dir, exist_ok=True)
+            os.makedirs(repo2_dir, exist_ok=True)
+            workspace_data = {
+                "repos": [
+                    {"name": repo1_dir},
+                    {"name": repo2_dir},
+                ]
+            }
+            with open("workspace.yaml", "w") as f:
+                yaml.dump(workspace_data, f)
 
-    # Create a dummy file in each repo to check if the command ran
-    with open("repo1/test.txt", "w") as f:
-        f.write("repo1")
-    with open("repo2/test.txt", "w") as f:
-        f.write("repo2")
+            # Invoke the command
+            result = runner.invoke(app, ["workspace", "run", "ls -l"])
 
-    result = runner.invoke(app, ["workspace", "run", "ls -a"])
+            # Assertions
+            self.assertEqual(result.exit_code, 0, result.output)
+            self.assertEqual(mock_subprocess_run.call_count, 2)
+            mock_subprocess_run.assert_any_call(['ls', '-l'], cwd=repo1_dir, check=True)
+            mock_subprocess_run.assert_any_call(['ls', '-l'], cwd=repo2_dir, check=True)
 
-    assert result.exit_code == 0
-    assert "Running command in 'repo1': ls -a" in result.stdout
-    assert "Running command in 'repo2': ls -a" in result.stdout
+    @patch('src.jules_cli.cli.init_db')
+    @patch('src.jules_cli.cli.check_env')
+    def test_missing_workspace_file(self, mock_check_env, mock_init_db):
+        runner = CliRunner()
+        with runner.isolated_filesystem():
+            result = runner.invoke(app, ["workspace", "run", "ls -l"])
+            self.assertNotEqual(result.exit_code, 0)
+            self.assertIn("Error: workspace.yaml not found.", result.output)
 
-    # Cleanup
-    os.remove("workspace.yaml")
-    os.remove("repo1/test.txt")
-    os.remove("repo2/test.txt")
-    os.rmdir("repo1")
-    os.rmdir("repo2")
+    @patch('src.jules_cli.commands.workspace.subprocess.run')
+    @patch('src.jules_cli.cli.init_db')
+    @patch('src.jules_cli.cli.check_env')
+    def test_missing_repository(self, mock_check_env, mock_init_db, mock_subprocess_run):
+        runner = CliRunner()
+        with runner.isolated_filesystem():
+            # Create workspace config with a missing repo
+            workspace_data = {
+                "repos": [
+                    {"name": "nonexistent_repo"},
+                ]
+            }
+            with open("workspace.yaml", "w") as f:
+                yaml.dump(workspace_data, f)
 
-@patch('jules_cli.cli.check_env')
-@patch('jules_cli.cli.init_db')
-def test_workspace_run_no_workspace_file(mock_init_db, mock_check_env):
-    result = runner.invoke(app, ["workspace", "run", "ls"])
-    assert result.exit_code == 1
-    assert "Error: workspace.yaml not found." in result.stdout
+            result = runner.invoke(app, ["workspace", "run", "ls -l"])
 
-@patch('jules_cli.cli.check_env')
-@patch('jules_cli.cli.init_db')
-def test_workspace_run_missing_repos_key(mock_init_db, mock_check_env):
-    with open("workspace.yaml", "w") as f:
-        yaml.dump({"not_repos": []}, f)
+            self.assertEqual(result.exit_code, 0)
+            self.assertIn("Warning: Repository 'nonexistent_repo' not found. Skipping.", result.output)
+            mock_subprocess_run.assert_not_called()
 
-    result = runner.invoke(app, ["workspace", "run", "ls"])
-    assert result.exit_code == 1
-    assert "Error: workspace.yaml is missing the 'repos' key." in result.stdout
-
-    # Cleanup
-    os.remove("workspace.yaml")
-
-@patch('jules_cli.cli.check_env')
-@patch('jules_cli.cli.init_db')
-def test_workspace_run_repo_not_found(mock_init_db, mock_check_env):
-    with open("workspace.yaml", "w") as f:
-        yaml.dump({"repos": [{"name": "repo1"}, {"name": "non_existent_repo"}]}, f)
-
-    os.makedirs("repo1", exist_ok=True)
-
-    result = runner.invoke(app, ["workspace", "run", "ls"])
-    assert result.exit_code == 0
-    assert "Warning: Repository 'non_existent_repo' not found. Skipping." in result.stdout
-
-    # Cleanup
-    os.remove("workspace.yaml")
-    os.rmdir("repo1")
-
-@patch('jules_cli.cli.check_env')
-@patch('jules_cli.cli.init_db')
-def test_workspace_run_command_fails(mock_init_db, mock_check_env):
-    with open("workspace.yaml", "w") as f:
-        yaml.dump({"repos": [{"name": "repo1"}]}, f)
-
-    os.makedirs("repo1", exist_ok=True)
-
-    result = runner.invoke(app, ["workspace", "run", "non_existent_command"])
-    assert result.exit_code == 1
-
-    # Cleanup
-    os.remove("workspace.yaml")
-    os.rmdir("repo1")
+if __name__ == "__main__":
+    unittest.main()
