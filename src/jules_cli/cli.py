@@ -11,6 +11,8 @@ from typing_extensions import Annotated
 
 from .commands.auto import auto_fix_command
 from .commands.task import run_task
+from .commands.refactor import run_refactor
+from .commands.testgen import run_testgen
 from .commands.session import cmd_session_list, cmd_session_show
 from .commands.history import cmd_history_list, cmd_history_view
 from .commands.apply import cmd_apply
@@ -90,6 +92,36 @@ def auto():
     Run pytest and auto-fix failures.
     """
     result = auto_fix_command()
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@app.command()
+def testgen(
+    file_path: str,
+    test_type: str = typer.Option(
+        "missing",
+        "--type",
+        "-t",
+        help="Type of tests to generate (e.g., missing, edge-case, async, error-path).",
+    ),
+):
+    """
+    Generate tests for a given file.
+    """
+    _state["session_id"] = os.urandom(8).hex()
+    result = run_testgen(file_path, test_type=test_type)
+    add_history_record(session_id=_state["session_id"], prompt=f"generate {test_type} tests for {file_path}", status="testgen_run")
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@app.command()
+def refactor(instruction: str):
+    """
+    Run a repository-wide refactor.
+    """
+    _state["session_id"] = os.urandom(8).hex()
+    result = run_refactor(instruction)
+    add_history_record(session_id=_state["session_id"], prompt=instruction, status="refactor_run")
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
 
