@@ -318,7 +318,23 @@ def suggest(
     """
     Proactively scan the codebase and suggest improvements.
     """
-    cmd_suggest(focus=focus, security=security, tests=tests, chore=chore)
+    result = cmd_suggest(focus=focus, security=security, tests=tests, chore=chore)
+    
+    sess = _state.get("current_session")
+    session_id = sess.get("id") if sess else os.urandom(8).hex()
+    _state["session_id"] = session_id
+
+    # Construct a descriptive prompt string for history
+    prompt_desc = "jules suggest"
+    if security: prompt_desc += " --security"
+    if tests: prompt_desc += " --tests"
+    if chore: prompt_desc += " --chore"
+    if focus: prompt_desc += f" --focus {focus}"
+
+    add_history_record(session_id=session_id, prompt=prompt_desc, status="suggest_run")
+    
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
 
 
 if __name__ == "__main__":
