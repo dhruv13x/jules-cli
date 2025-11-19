@@ -136,6 +136,18 @@ jules> last
 
 ---
 
+## 🧠 State Management
+
+The Jules CLI is designed to be stateful within a single invocation. It uses a global `_state` dictionary to manage context between commands.
+
+- **`session_id`**: A unique ID is generated for each `task` command and stored in the `_state`. This allows subsequent commands like `apply` or `commit` to refer to the correct session.
+- **`patch`**: When a patch is received from the Jules API, it is stored in `_state.patch` so it can be applied later.
+- **`branch_name`**: The CLI automatically generates and stores a branch name in `_state` when you run `commit`.
+
+This design enables a seamless workflow where you can run a `task`, review the result, and then `apply` or `commit` it without needing to pass IDs or file paths manually. The state is reset with each new `jules` invocation to ensure clean, predictable sessions.
+
+---
+
 ## 🧩 Example Workflow
 
 ### Fix test failure automatically
