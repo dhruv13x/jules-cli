@@ -55,12 +55,36 @@ class ColorFormatter(logging.Formatter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.FORMATS = {
-            logging.DEBUG: self.GREY + "%(levelname)s" + self.RESET + ": %(message)s",
-            VERBOSE: self.BLUE + "%(levelname)s" + self.RESET + ": %(message)s",
-            logging.INFO: self.GREEN + "%(levelname)s" + self.RESET + ": %(message)s",
-            logging.WARNING: self.YELLOW + "%(levelname)s" + self.RESET + ": %(message)s",
-            logging.ERROR: self.RED + "%(levelname)s" + self.RESET + ": %(message)s",
-            logging.CRITICAL: self.BOLD_RED + "%(levelname)s" + self.RESET + ": %(message)s",
+            logging.DEBUG: "%(asctime)s - "
+            + self.GREY
+            + "%(levelname)s"
+            + self.RESET
+            + ": %(message)s",
+            VERBOSE: "%(asctime)s - "
+            + self.BLUE
+            + "%(levelname)s"
+            + self.RESET
+            + ": %(message)s",
+            logging.INFO: "%(asctime)s - "
+            + self.GREEN
+            + "%(levelname)s"
+            + self.RESET
+            + ": %(message)s",
+            logging.WARNING: "%(asctime)s - "
+            + self.YELLOW
+            + "%(levelname)s"
+            + self.RESET
+            + ": %(message)s",
+            logging.ERROR: "%(asctime)s - "
+            + self.RED
+            + "%(levelname)s"
+            + self.RESET
+            + ": %(message)s",
+            logging.CRITICAL: "%(asctime)s - "
+            + self.BOLD_RED
+            + "%(levelname)s"
+            + self.RESET
+            + ": %(message)s",
         }
 
     def format(self, record):
