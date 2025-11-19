@@ -14,235 +14,131 @@ Designed for real-world workflows, CI pipelines, and local debugging sessions.
 
 ## 🚀 Features
 
-### 🔧 Automated Test Fixer
-- Runs pytest  
-- Sends failures to the Jules API  
-- Receives automated patches or PRs  
-- Applies patches locally  
-- Re-runs tests  
-- Optional auto-push + auto-PR via GitHub
-
-### 🤖 AI-Powered Development Assistant
-Issue natural-language commands:
-
-jules task "refactor the user login service" jules task "add test coverage for payment workflows" jules task "fix NullPointer bug in auth module"
-
-Jules performs the work in a dedicated session and returns patches or PRs.
-
-### 🔁 Stateful Interactive REPL
-Run:
-
-jules
-
-And access a full command shell:
-
-auto task "..." apply commit push pr create session list session show <id> last exit
-
-### 🛠 GitHub Integration
-- Auto-creates branches  
-- Auto-commits and auto-pushes  
-- Automatically creates PRs using `GITHUB_TOKEN`
-
-### 🔐 Trusted Auth
-Uses Google's **Jules API** with the `X-Goog-Api-Key` header.  
-Secure, isolated, and simple.
+- ** automated Test Fixer**: Automatically runs `pytest`, sends failures to the Jules API, applies the returned patch, and re-runs tests to verify the fix.
+- ** natural-language tasks**: Issue plain-English commands to refactor code, add test coverage, or fix complex bugs.
+- ** Interactive REPL**: An immersive shell with command history, stateful sessions, and a streamlined workflow.
+- ** full Git Integration**: Automatically creates branches, commits, and pushes patches.
+- ** GitHub Workflow**: Creates and manages GitHub Pull Requests with a single command.
+- ** secure and simple Auth**: Uses Google's `X-Goog-Api-Key` for trusted, hassle-free authentication.
+- ** local and CI/CD**: Built for both local debugging and fully automated CI/CD pipelines.
 
 ---
 
-## 📦 Installation
+## 📦 Installation & Setup
 
-### From PyPI (recommended)
-
+**1. Install via PyPI**
+```bash
 pip install jules-cli
-
-### From source (editable)
-
-git clone https://github.com/dhruv13x/jules-cli cd jules-cli pip install -e .
-
----
-
-## ⚙️ Environment Setup
-
-Before using the CLI, set:
-
-### **1. Jules API Key**
-
-export JULES_API_KEY="your_key_here"
-
-### **2. GitHub Token (optional, for PR creation)**
-
-export GITHUB_TOKEN="ghp_xxx..."
-
-(Optional) Set your Git identity:
-
-git config --global user.name "Your Name" git config --global user.email "you@example.com"
+```
+*Or install from source (for development):*
+```bash
+git clone https://github.com/dhruv13x/jules-cli
+cd jules-cli
+pip install -e .
+```
+**2. Set your API Key**
+```bash
+export JULES_API_KEY="your_api_key_here"
+```
+**3. Set your GitHub Token** (Optional, for creating PRs)
+```bash
+export GITHUB_TOKEN="ghp_xxx"
+```
+**4. Configure Git** (Optional, for local commits)
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+```
 
 ---
-
 ## 🧪 Usage
-
-### Open the REPL
-
-jules
-
-You’ll see:
-
-Jules Interactive CLI — fully immersive developer assistant.
-
-Commands: auto task "instruction" apply commit push pr create session list ...
-
----
-
-## 📘 Command Guide
-
-### 🔥 `auto` – Automatic pytest debugging
-Runs pytest → detects failures → sends to Jules → applies patch or PR.
-
-jules> auto
-
-### 📝 `task "<instruction>"` – Tell Jules anything
-Examples:
-
-jules> task "refactor utils.py to remove duplicated logic" jules> task "add unit tests for create_dump function" jules> task "fix failing integration test for redis manager"
-
-### 🩹 `apply` – Apply the last patch Jules returned
-
-jules> apply
-
-### 🌿 `commit` – Auto-create branch & commit patch
-
-jules> commit
-
-### 🚀 `push` – Push current branch
-
-jules> push
-
-### 🔗 `pr create` – Create GitHub pull request
-Requires `GITHUB_TOKEN`.
-
-jules> pr create
-
-### 🔍 `session list` – View recent Jules sessions
-
-jules> session list
-
-### 📖 `session show <id>` – Inspect a session
-
-jules> session show 1234567890
-
-### 📦 `last` – Show last session + result
-
-jules> last
-
----
-
-## 🧩 Example Workflow
-
-### Fix test failure automatically
+**1. Open the REPL**
 ```bash
 jules
+```
+This launches the interactive shell.
+**2. Run a command**
+```bash
 jules> auto
+```
+Jules will automatically run `pytest`, fix failures, and apply patches.
+## 📘 Command Guide
+| Command | Description |
+|---|---|
+| `auto` | **fully automated test fixer**. Runs `pytest`, sends failures to Jules, and applies patches. |
+| `task "<instruction>"` | **send any instruction to jules**. |
+| `apply` | **apply the last patch** returned by the API. |
+| `commit` | **create a new branch** and commit the current patch. |
+| `push` | **push the branch** to the remote repository. |
+| `pr create` | **create a pull request** on GitHub. |
+| `session list` | **list all sessions** in the current context. |
+| `session show <id>` | **show session details** including logs and patches. |
+| `last` | **show the last session** and its result. |
+| `exit` | **exit the REPL**. |
+
+---
+
+## 💡 Example Workflow
+
+A common workflow for fixing a test failure:
+```bash
+# 1. Start the interactive REPL
+jules
+
+# 2. Run the automated test-fixer
+jules> auto
+
+# 3. Apply the patch returned by Jules
 jules> apply
+
+# 4. Create a new branch and commit the changes
 jules> commit
+
+# 5. Push the branch and create a PR
 jules> push
 jules> pr create
-
-Request refactor
-
-jules> task "Refactor bot_platform/init_manager for clarity"
-jules> apply
-
-Add tests
-
-jules> task "Add pytest tests for projectclone cli"
-
+```
 
 ---
 
-🏗 Project Structure
-
+## 🏗️ Project Structure
+```
 jules-cli/
-│
 ├── src/
 │   └── jules_cli/
-│       ├── cli.py
-│       └── __init__.py
-│
-├── pyproject.toml
-├── README.md
-└── .github/workflows/publish.yml
-
-
----
-
-🔄 Release Workflow (PyPI Trusted Publisher)
-
-To publish a new version:
-
-1. Update version in pyproject.toml
-
-version = "1.1.0"
-
-2. Commit and push
-
-git add .
-git commit -m "Release 1.1.0"
-git push
-
-3. Create tag
-
-git tag v1.1.0
-git push origin v1.1.0
-
-GitHub Actions will automatically build & publish to PyPI.
-
+│       ├── commands/     # Command handlers
+│       ├── core/         # Core API client and services
+│       ├── git/          # Git and GitHub utilities
+│       ├── patch/        # Patch management
+│       ├── pytest/       # Pytest integration
+│       ├── utils/        # Shared helpers
+│       ├── cli.py        # Main Typer app
+│       ├── cache.py      # Caching logic
+│       ├── db.py         # Database interaction
+│       └── state.py      # Global state management
+├── tests/                # Unit and integration tests
+├── .github/              # GitHub Actions workflows
+├── pyproject.toml        # Project metadata and dependencies
+└── README.md
+```
 
 ---
 
-🛡 License
+## 🤝 Contributing
 
-This project is licensed under the MIT License.
-See LICENSE for details.
+Contributions are welcome! Please open an issue or submit a pull request.
 
+## 🛡️ License
 
----
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
-🤝 Contributing
+## 💬 Get Help
 
-Contributions, bug reports, and feature requests are welcome.
+- **Open an Issue**: If you find a bug or have a feature request, please [open an issue](https://github.com/dhruv13x/jules-cli/issues).
+- **Community**: Join our community channel (link pending) for discussions.
 
-1. Fork the repo
+## 🔭 Vision
 
-
-2. Create a feature branch
-
-
-3. Add your changes
-
-
-4. Submit a PR
-
-
-
-
----
-
-⭐ Support the Project
-
-If you like this tool:
-
-⭐ Star the repo
-
-🗣 Share ideas
-
-🧪 Open issues and feature requests
-
-
-
----
-
-💬 Feedback Welcome
-
-Feel free to open an issue or reach out anytime — the goal is to make jules-cli the most powerful local automation assistant for developers.
+Our vision is to make `jules-cli` the go-to developer assistant for automating tedious and time-consuming tasks. We believe that by integrating powerful AI into the command line, we can help developers focus on what matters most: building great software.
 
 ---
