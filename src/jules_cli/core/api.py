@@ -87,24 +87,29 @@ def poll_for_result(session_id: str, timeout=POLL_TIMEOUT):
                 agent_messaged = act.get("agentMessaged")
                 if agent_messaged and agent_messaged.get("agentMessage"):
                     last_agent_message = agent_messaged["agentMessage"]
-                    # If an agent message is found, and no other artifacts, return it immediately
-                    if not act.get("artifacts"): # If no other artifacts, it's just a message
+                    # If an agent message is found, and no other artifacts or plans, return it immediately
+                    if not act.get("artifacts") and not act.get("planGenerated"):
                         return {"type": "message", "message": last_agent_message, "session": get_session(session_id)}
 
-
-                # NEW: Check for planGenerated activities
+                # Check for planGenerated activities
                 plan_generated = act.get("planGenerated")
                 if plan_generated and plan_generated.get("plan"):
                     return {"type": "plan", "plan": plan_generated["plan"], "activity": act, "session": get_session(session_id)}
-                    cs = art.get("changeSet")
-                    if cs:
-                        gp = cs.get("gitPatch") or {}
-                        patch = gp.get("unidiffPatch")
-                        if patch:
-                            return {"type": "patch", "patch": patch, "activity": act}
-                    pr = art.get("pullRequest")
-                    if pr:
-                        return {"type": "pr", "pr": pr, "activity": act}
+                
+                # Check for artifacts (Patches, PRs)
+                if act.get("artifacts"):
+                    for art in act["artifacts"]:
+                        cs = art.get("changeSet")
+                        if cs:
+                            gp = cs.get("gitPatch") or {}
+                            patch = gp.get("unidiffPatch")
+                            if patch:
+                                return {"type": "patch", "patch": patch, "activity": act}
+                        
+                        pr = art.get("pullRequest")
+                        if pr:
+                            return {"type": "pr", "pr": pr, "activity": act}
+
         except JulesAPIError as e:
             # Swallow 404s during polling (eventual consistency)
             if "404" in str(e) or "NOT_FOUND" in str(e):
@@ -137,17 +142,20 @@ def poll_for_result(session_id: str, timeout=POLL_TIMEOUT):
                 return {"type": "session_status", "status": sess["state"], "session": sess}
         
         # If in PLANNING state and no definitive output yet, allow to proceed until timeout.
-        # This allows the session to eventually complete or provide more info.
         if sess and sess.get("state") == "PLANNING":
             # If a message was found, but not returned immediately (because of other artifacts), and we're still in PLANNING
             if last_agent_message:
                 return {"type": "message", "message": last_agent_message, "session": sess}
-            # Otherwise, keep polling, until timeout. This might lead to timeout if no output ever produced.
-            # We assume that a PLANNING session eventually transitions or provides an output.
             pass
-
 
         # Timeout Check
         if time.time() - t0 > timeout:
             raise JulesAPIError("Timed out waiting for Jules outputs.")
         time.sleep(POLL_INTERVAL)
+
+def approve_plan(session_id: str):
+    """
+    Approves the plan for the given session.
+    """
+    logger.info(f"Approving plan for session {session_id}...")
+    return _http_request("POST", f"/sessions/{session_id}:approvePlan")

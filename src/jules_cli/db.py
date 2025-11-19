@@ -80,3 +80,18 @@ def add_history_record(session_id, prompt=None, patch=None, pr_url=None, status=
     except sqlite3.Error as e:
         logger.error("Failed to add/update history record: %s", e)
         raise
+
+
+def get_latest_session_id():
+    """Get the most recent session ID from the history."""
+    db_path = get_db_path()
+    try:
+        con = sqlite3.connect(db_path)
+        cur = con.cursor()
+        cur.execute("SELECT session_id FROM history ORDER BY timestamp DESC LIMIT 1")
+        row = cur.fetchone()
+        con.close()
+        return row[0] if row else None
+    except sqlite3.Error as e:
+        logger.error(f"Failed to get latest session: {e}")
+        return None

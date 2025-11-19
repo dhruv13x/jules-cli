@@ -21,6 +21,7 @@ from .commands.commit import cmd_commit_and_push
 from .commands.pr import cmd_create_pr
 from .commands.doctor import run_doctor_command
 from .commands.stage import cmd_stage
+from .commands.plan import cmd_approve, cmd_reject
 from .commands.workspace import app as workspace_app
 from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
@@ -123,9 +124,13 @@ def testgen(
     """
     Generate tests for a given file.
     """
-    _state["session_id"] = os.urandom(8).hex()
     result = run_testgen(file_path, test_type=test_type)
-    add_history_record(session_id=_state["session_id"], prompt=f"generate {test_type} tests for {file_path}", status="testgen_run")
+    
+    sess = _state.get("current_session")
+    session_id = sess.get("id") if sess else os.urandom(8).hex()
+    _state["session_id"] = session_id
+
+    add_history_record(session_id=session_id, prompt=f"generate {test_type} tests for {file_path}", status="testgen_run")
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
 
@@ -134,9 +139,13 @@ def refactor(instruction: str):
     """
     Run a repository-wide refactor.
     """
-    _state["session_id"] = os.urandom(8).hex()
     result = run_refactor(instruction)
-    add_history_record(session_id=_state["session_id"], prompt=instruction, status="refactor_run")
+    
+    sess = _state.get("current_session")
+    session_id = sess.get("id") if sess else os.urandom(8).hex()
+    _state["session_id"] = session_id
+    
+    add_history_record(session_id=session_id, prompt=instruction, status="refactor_run")
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
 
@@ -145,9 +154,31 @@ def task(prompt: str):
     """
     Ask Jules to perform an arbitrary dev task (bugfix/refactor/tests/docs).
     """
-    _state["session_id"] = os.urandom(8).hex()
     result = run_task(prompt)
-    add_history_record(session_id=_state["session_id"], prompt=prompt, status="task_run")
+    
+    sess = _state.get("current_session")
+    session_id = sess.get("id") if sess else os.urandom(8).hex()
+    _state["session_id"] = session_id
+    
+    add_history_record(session_id=session_id, prompt=prompt, status="task_run")
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@app.command()
+def approve(session_id: str = typer.Argument(None, help="Session ID to approve (optional if recent session exists)")):
+    """
+    Approve the plan for the current or specified session.
+    """
+    result = cmd_approve(session_id)
+    if _state.get("json_output"):
+        print_json(result, pretty=_state.get("pretty"))
+
+@app.command()
+def reject(session_id: str = typer.Argument(None, help="Session ID to reject (optional if recent session exists)")):
+    """
+    Reject the plan for the current or specified session.
+    """
+    result = cmd_reject(session_id)
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
 
