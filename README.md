@@ -77,6 +77,18 @@ export GITHUB_TOKEN="ghp_xxx..."
 
 git config --global user.name "Your Name" git config --global user.email "you@example.com"
 
+### **3. Configuration File (optional)**
+
+You can also store your API key and other settings in a configuration file located at `~/.config/jules/config.toml`.
+
+```toml
+[jules]
+api_key = "your_key_here"
+
+[github]
+token = "ghp_xxx..."
+```
+
 ---
 
 ## 🧪 Usage
@@ -133,6 +145,13 @@ jules> session show 1234567890
 ### 📦 `last` – Show last session + result
 
 jules> last
+
+### 🩺 `doctor` – Check your environment
+Verifies that your environment is correctly configured to run `jules-cli`. Checks for:
+- `JULES_API_KEY`
+- `GITHUB_TOKEN` (optional)
+- Git installation
+- Internet connectivity
 
 ---
 
