@@ -1,3 +1,5 @@
+# src/jules_cli/commands/plan.py
+
 from typing import Optional
 from ..core.api import approve_plan, send_message, poll_for_result, get_session
 from ..db import get_latest_session_id
