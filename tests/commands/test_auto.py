@@ -8,7 +8,8 @@ from jules_cli.utils.config import config
 @patch('jules_cli.commands.auto.run_pytest', return_value=(0, "", ""))
 @patch('jules_cli.commands.auto.run_task')
 @patch.object(environment, 'check_env')
-def test_auto_fix_command_success(mock_check_env, mock_run_task, mock_run_pytest):
+@patch.object(config, 'get_nested', return_value="owner/repo")
+def test_auto_fix_command_success(mock_get_nested, mock_check_env, mock_run_task, mock_run_pytest):
     auto.auto_fix_command()
     mock_run_task.assert_not_called()
 

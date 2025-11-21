@@ -35,11 +35,14 @@ def test_set_repo_success(mock_logger_info, mock_save, monkeypatch):
     mock_save.assert_called_once()
 
 @patch.object(config_set.config, 'save')
-def test_set_repo_invalid_format(mock_save, monkeypatch):
+@patch.object(config_set.logger, 'error')
+def test_set_repo_invalid_format(mock_logger_error, mock_save, monkeypatch):
     monkeypatch.setenv("JULES_API_KEY", "dummy_key")
     result = runner.invoke(app, ["config", "set-repo", "invalid-repo-name"])
     assert result.exit_code == 1
-    assert "Invalid repository format. Please use 'owner/repo'." in result.stderr
+    # logger.error calls are likely captured by caplog, but runner.invoke might not show them in stderr depending on handler config
+    # mock_logger_error ensures we verify the error logging independently of stdout/stderr
+    mock_logger_error.assert_called_with("Invalid repository format. Please use 'owner/repo'.")
     mock_save.assert_not_called()
 
 @patch.object(config_set.config, 'save', side_effect=Exception("Save failed"))

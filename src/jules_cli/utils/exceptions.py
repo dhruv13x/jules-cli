@@ -18,6 +18,7 @@ class PatchError(JulesError):
 
 class TestRunnerError(JulesError):
     """Raised when the test runner fails."""
+    __test__ = False
     pass
 
 class ConfigError(JulesError):
