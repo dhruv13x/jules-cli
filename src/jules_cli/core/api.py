@@ -9,7 +9,7 @@ from ..utils.exceptions import JulesAPIError
 from ..utils.config import config
 
 # Configuration
-BASE = "https://jules.googleapis.com/v1alpha"
+BASE = os.getenv("JULES_API_URL", "https://jules.googleapis.com/v1alpha")
 POLL_INTERVAL = 5
 POLL_TIMEOUT = config.get_nested("core", "api_timeout", 120)
 
@@ -40,13 +40,45 @@ def list_sources() -> List[dict]:
     return _http_request("GET", "/sources").get("sources", [])
 
 def pick_source_for_repo(repo_name: str) -> Optional[dict]:
-    for s in list_sources():
+    # Try to parse repo_name as 'owner/repo'
+    parsed_owner = None
+    parsed_repo_short = None
+    if "/" in repo_name:
+        parts = repo_name.split("/", 1)
+        parsed_owner = parts[0]
+        parsed_repo_short = parts[1]
+    
+    all_sources = list_sources()
+
+    # Prioritize matching by owner/repo or full source name
+    for s in all_sources:
         gr = s.get("githubRepo") or {}
-        if gr.get("repo") == repo_name:
+        source_owner = gr.get("owner")
+        source_repo_short = gr.get("repo")
+        source_name = s.get("name")
+
+        if parsed_owner and parsed_repo_short:
+            # Match against parsed owner/repo
+            if source_owner == parsed_owner and source_repo_short == parsed_repo_short:
+                return s
+        
+        # Fallback to matching against full source name if provided repo_name is a full source name
+        if source_name == repo_name:
             return s
-    for s in list_sources():
+
+    # Fallback to matching by just repo_short if full owner/repo or source name wasn't found
+    if parsed_repo_short:
+        for s in all_sources:
+            gr = s.get("githubRepo") or {}
+            source_repo_short = gr.get("repo")
+            if source_repo_short == parsed_repo_short:
+                return s
+
+    # Finally, try a substring match as a last resort (original logic)
+    for s in all_sources:
         if repo_name in (s.get("name") or ""):
             return s
+
     return None
 
 def create_session(prompt: str, source_name: str, starting_branch="main", title="Jules CLI session", automation_mode=None, branch_name: Optional[str] = None) -> dict:

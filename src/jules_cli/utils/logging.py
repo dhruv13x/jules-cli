@@ -25,6 +25,13 @@ def setup_logging(level="INFO", color=True):
     Configure the root logger for the Jules CLI.
     This should be called once at the start of the application.
     """
+    # Clear existing handlers to prevent duplicate output in tests
+    # and ValueError: I/O operation on closed file.
+    if logger.handlers:
+        for handler in list(logger.handlers):
+            logger.removeHandler(handler)
+            handler.close() # Close the handler stream if it's open
+
     logger.setLevel(level)
     handler = logging.StreamHandler()
     formatter = ColorFormatter() if color else logging.Formatter(

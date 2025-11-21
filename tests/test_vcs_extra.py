@@ -28,10 +28,9 @@ def test_git_create_branch_and_commit_final_error(mock_run_cmd):
         except GitError as e:
             assert "Failed to commit changes" in str(e)
 
-@patch('jules_cli.git.vcs.requests.post')
-def test_github_create_pr_no_token(mock_post):
-    with patch('jules_cli.git.vcs.GITHUB_TOKEN', None):
-        try:
-            vcs.github_create_pr("owner", "repo", "head")
-        except GitError as e:
-            assert "GITHUB_TOKEN not set" in str(e)
+@patch('os.getenv', side_effect=lambda key: None if key == "GITHUB_TOKEN" else os.environ.get(key))
+def test_github_create_pr_no_token(mock_getenv):
+    try:
+        vcs.github_create_pr("owner", "repo", "head")
+    except GitError as e:
+        assert "GITHUB_TOKEN not set" in str(e)

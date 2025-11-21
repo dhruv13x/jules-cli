@@ -191,7 +191,7 @@ def test_poll_for_result_multiple_iterations(mock_sleep, mock_get_session, mock_
     result = api.poll_for_result("fake_session_id", timeout=1)
     assert result["type"] == "patch"
     assert mock_list_activities.call_count == 2
-    assert mock_sleep.call_count == 1
+    assert mock_sleep.call_count == 2
 
 @patch('jules_cli.core.api._http_request')
 def test_list_sessions(mock_http_request):

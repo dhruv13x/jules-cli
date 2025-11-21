@@ -96,6 +96,7 @@ class Config:
     def save(self) -> None:
         """Saves the configuration to the file."""
         try:
+            print(f"DEBUG: Saving config data: {self.data!r} to path: {self.path!r}") # <-- Temporary debug line
             with open(self.path, "w") as f:
                 toml.dump(self.data, f)
         except Exception as e:

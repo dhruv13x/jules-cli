@@ -4,10 +4,11 @@ import os
 import json
 import shutil
 import socket
-import importlib.metadata # Added this line
+import importlib.metadata
 from ..utils.logging import logger
 from ..utils.config import DEFAULT_CONFIG_PATH, config
 from ..utils.commands import run_cmd
+from ..git.vcs import git_get_remote_repo_info
 
 def check_jules_api_key():
     return "JULES_API_KEY is set." if os.getenv("JULES_API_KEY") else "JULES_API_KEY is not set."
@@ -57,6 +58,12 @@ def check_dependencies():
     else:
         return f"Missing dependencies: {', '.join(missing)}"
 
+def check_configured_repo():
+    owner, repo = git_get_remote_repo_info()
+    if owner and repo:
+        return f"Configured repository: {owner}/{repo}"
+    else:
+        return "No repository configured or detected from git remote."
 
 def run_doctor_command():
     checks = {
@@ -68,6 +75,7 @@ def run_doctor_command():
         "GitHub Token": check_github_token(),
         "Config File": check_config_file(),
         "Dependencies": check_dependencies(),
+        "Configured Repository": check_configured_repo(),
     }
 
     logger.info("Jules Environment Doctor")

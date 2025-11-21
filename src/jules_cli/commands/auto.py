@@ -3,8 +3,17 @@
 from ..pytest.runner import run_pytest
 from .task import run_task
 from ..utils.logging import logger
+from ..utils.config import config
+from typing import Optional
 
-def auto_fix_command(repo_dir_name="bot_platform"):
+def auto_fix_command(repo_dir_name: Optional[str] = None):
+    if repo_dir_name is None:
+        repo_dir_name = config.get_nested("core", "default_repo")
+        if not repo_dir_name:
+            raise RuntimeError(
+                "No repository specified. Please use the --repo option or set a default_repo in your config file."
+            )
+
     # run pytest first
     code, out, err = run_pytest()
     if code == 0:

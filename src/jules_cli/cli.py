@@ -17,6 +17,7 @@ from .commands.testgen import run_testgen
 from .commands.session import cmd_session_list, cmd_session_show
 from .commands.history import cmd_history_list, cmd_history_view
 from .commands.apply import cmd_apply
+from .commands.config_set import config_app
 from .commands.commit import cmd_commit_and_push
 from .commands.pr import cmd_create_pr
 from .commands.doctor import run_doctor_command
@@ -24,6 +25,7 @@ from .commands.stage import cmd_stage
 from .commands.plan import cmd_approve, cmd_reject
 from .commands.workspace import app as workspace_app
 from .commands.suggest import cmd_suggest
+from .commands.interact import cmd_interact
 from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
 from .state import _state
@@ -48,6 +50,7 @@ app.add_typer(session_app)
 app.add_typer(history_app)
 app.add_typer(pr_app)
 app.add_typer(workspace_app)
+app.add_typer(config_app)
 
 def load_plugins():
     for entry_point in metadata.entry_points(group="jules.plugins"):
@@ -275,7 +278,20 @@ def pr_create(
     """
     Create a GitHub PR from last branch (requires GITHUB_TOKEN).
     """
+    owner = _state.get("repo_owner")
+    repo = _state.get("repo_name")
+
+    if not owner or not repo:
+        default_repo = config.get_nested("core", "default_repo")
+        if default_repo and "/" in default_repo:
+            owner, repo = default_repo.split("/", 1)
+        else:
+            logger.error("No repository specified in state or config. Use 'jules config set-repo <owner/repo>' or run a task first.")
+            raise typer.Exit(code=1)
+
     pr_url = cmd_create_pr(
+        owner=owner,
+        repo=repo,
         title=title,
         body=body,
         draft=draft,
@@ -335,6 +351,13 @@ def suggest(
     
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
+
+@app.command()
+def interact(prompt: str):
+    """
+    Start an interactive chat session with Jules.
+    """
+    cmd_interact(prompt)
 
 
 if __name__ == "__main__":
