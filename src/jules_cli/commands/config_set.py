@@ -13,11 +13,11 @@ def set_repo(
     """
     Sets the default repository for Jules CLI.
     """
-    try:
-        if "/" not in repo_name:
-            logger.error("Invalid repository format. Please use 'owner/repo'.")
-            raise typer.Exit(code=1)
+    if "/" not in repo_name:
+        logger.error("Invalid repository format. Please use 'owner/repo'.")
+        raise typer.Exit(code=1)
 
+    try:
         config.data["core"]["default_repo"] = repo_name
         config.save()
         logger.info(f"Default repository set to: {repo_name}")

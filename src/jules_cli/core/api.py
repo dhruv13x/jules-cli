@@ -67,12 +67,12 @@ def pick_source_for_repo(repo_name: str) -> Optional[dict]:
             return s
 
     # Fallback to matching by just repo_short if full owner/repo or source name wasn't found
-    if parsed_repo_short:
-        for s in all_sources:
-            gr = s.get("githubRepo") or {}
-            source_repo_short = gr.get("repo")
-            if source_repo_short == parsed_repo_short:
-                return s
+    target_short = parsed_repo_short if parsed_repo_short else repo_name
+    for s in all_sources:
+        gr = s.get("githubRepo") or {}
+        source_repo_short = gr.get("repo")
+        if source_repo_short == target_short:
+            return s
 
     # Finally, try a substring match as a last resort (original logic)
     for s in all_sources:
