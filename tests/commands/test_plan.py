@@ -8,6 +8,7 @@ from jules_cli.state import _state
 def test_cmd_approve_success(mock_poll, mock_approve, mock_get_latest):
     mock_get_latest.return_value = "session-123"
     mock_poll.return_value = {"type": "message", "message": "Done"}
+    _state.pop("current_session", None)
 
     result = plan.cmd_approve()
 

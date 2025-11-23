@@ -3,6 +3,7 @@ import pytest
 from jules_cli.core import api
 from jules_cli.utils.exceptions import JulesAPIError
 import os
+import logging
 
 @patch("requests.request")
 def test_http_request_no_api_key(mock_request, monkeypatch):
@@ -93,23 +94,28 @@ def test_approve_plan(mock_req):
     api.approve_plan("sid")
     mock_req.assert_called_with("POST", "/sessions/sid:approvePlan")
 
-@patch("jules_cli.core.api.list_activities")
-@patch("jules_cli.core.api.get_session")
-def test_poll_for_result_plan(mock_get, mock_list):
-    mock_list.return_value = {"activities": [{"planGenerated": {"plan": {}}}]}
-    mock_get.return_value = {"state": "PLANNING"}
+def test_poll_for_result_plan(monkeypatch):
+    mock_list_activities = MagicMock(return_value={"activities": [{"planGenerated": {"plan": {}}}]})
+    mock_get_session = MagicMock(return_value={"state": "PLANNING"})
 
-    # Mock time to avoid timeout loop issues
-    # Use a generator for time.time to avoid StopIteration due to logging calls
-    def time_generator():
-        t = 0.0
-        while True:
-            yield t
-            t += 0.1
+    monkeypatch.setattr("jules_cli.core.api.list_activities", mock_list_activities)
+    monkeypatch.setattr("jules_cli.core.api.get_session", mock_get_session)
 
-    with patch("time.sleep"), patch("time.time", side_effect=time_generator()):
-        result = api.poll_for_result("sid", timeout=1)
+    monkeypatch.setattr("time.sleep", MagicMock())
+    monkeypatch.setattr("jules_cli.core.api.logger", MagicMock())
+
+    # Ensure other logging calls don't interfere
+    monkeypatch.setattr(logging.getLogger("jules"), "handlers", [])
+    monkeypatch.setattr(logging, 'disable', MagicMock())
+    monkeypatch.setattr(logging, 'info', MagicMock())
+
+    # Mock time.time to simulate a constant time, so timeout condition is not met
+    monkeypatch.setattr("time.time", MagicMock(return_value=0.0))
+
+    result = api.poll_for_result("sid", timeout=1)
     assert result["type"] == "plan"
+    mock_list_activities.assert_called_once_with("sid")
+    mock_get_session.assert_called_once_with("sid")
 
 @patch("jules_cli.core.api.list_activities")
 @patch("jules_cli.core.api.get_session")

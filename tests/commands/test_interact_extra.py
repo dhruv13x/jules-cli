@@ -9,7 +9,8 @@ from jules_cli.utils.exceptions import JulesAPIError
 @patch("jules_cli.commands.interact.poll_for_result")
 @patch("jules_cli.commands.interact.pick_source_for_repo")
 @patch("jules_cli.commands.interact.list_sources")
-def test_cmd_interact_success_flow(mock_list, mock_pick, mock_poll, mock_create, mock_input, monkeypatch):
+@patch("jules_cli.commands.interact.logger") # Added this line
+def test_cmd_interact_success_flow(mock_logger, mock_list, mock_pick, mock_poll, mock_create, mock_input, monkeypatch):
     mock_pick.return_value = {"name": "source"}
     mock_create.return_value = {"name": "projects/p/locations/l/sessions/sid"}
     mock_poll.return_value = {"type": "message", "message": "Hello"}
@@ -45,7 +46,8 @@ def test_cmd_interact_no_source_found(mock_pick, mock_list):
 @patch("jules_cli.commands.interact.poll_for_result")
 @patch("jules_cli.commands.interact.pick_source_for_repo")
 @patch("jules_cli.commands.interact.send_message")
-def test_cmd_interact_conversation(mock_send, mock_pick, mock_poll, mock_create, mock_input):
+@patch("jules_cli.commands.interact.logger") # Added this line
+def test_cmd_interact_conversation(mock_logger, mock_send, mock_pick, mock_poll, mock_create, mock_input):
     mock_pick.return_value = {"name": "source"}
     mock_create.return_value = {"name": "sessions/sid"}
     mock_poll.side_effect = [
