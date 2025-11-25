@@ -1,3 +1,5 @@
+# tests/commands/test_suggest.py
+
 from unittest.mock import patch
 from jules_cli.commands import suggest
 

@@ -34,6 +34,7 @@ from .utils.logging import logger, setup_logging
 from .utils.exceptions import JulesError
 from .utils.config import config
 from .utils.output import print_json
+from .banner import print_logo
 
 app = typer.Typer(
     help="Jules Interactive CLI — fully immersive developer assistant.",
@@ -73,6 +74,7 @@ def main(
     Main entry point for the Jules CLI.
     Initializes logging, checks the environment, and sets up the database.
     """
+    print_logo()
     _state["json_output"] = json_output
     _state["pretty"] = pretty
     """

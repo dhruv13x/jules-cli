@@ -1,3 +1,5 @@
+# src/jules_cli/commands/workspace.py
+
 
 import typer
 import yaml

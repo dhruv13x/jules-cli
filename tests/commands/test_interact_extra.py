@@ -1,3 +1,5 @@
+# tests/commands/test_interact_extra.py
+
 from unittest.mock import patch, MagicMock
 import pytest
 from jules_cli.commands import interact

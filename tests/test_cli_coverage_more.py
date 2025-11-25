@@ -1,3 +1,5 @@
+# tests/test_cli_coverage_more.py
+
 import pytest
 from typer.testing import CliRunner
 from jules_cli.cli import app

@@ -1,3 +1,5 @@
+# tests/test_db_coverage.py
+
 import pytest
 from unittest.mock import patch, MagicMock
 from jules_cli import db

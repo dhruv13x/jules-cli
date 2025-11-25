@@ -1,3 +1,5 @@
+# tests/commands/test_interact.py
+
 import pytest
 from typer.testing import CliRunner
 from unittest.mock import patch, MagicMock

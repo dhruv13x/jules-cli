@@ -1,3 +1,5 @@
+# tests/core/test_api_coverage.py
+
 from unittest.mock import patch, MagicMock
 import pytest
 from jules_cli.core import api
