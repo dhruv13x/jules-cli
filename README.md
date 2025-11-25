@@ -1,3 +1,38 @@
+<div align="center">
+  <img src="https://raw.githubusercontent.com/dhruv13x/jules-cli/main/jules-cli_logo.png" alt="jules-cli logo" width="200"/>
+</div>
+
+<div align="center">
+
+<!-- Package Info -->
+[![PyPI version](https://img.shields.io/pypi/v/jules-cli.svg)](https://pypi.org/project/jules-cli/)
+[![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
+![Wheel](https://img.shields.io/pypi/wheel/jules-cli.svg)
+[![Release](https://img.shields.io/badge/release-PyPI-blue)](https://pypi.org/project/jules-cli/)
+
+<!-- Build & Quality -->
+[![Build status](https://github.com/dhruv13x/jules-cli/actions/workflows/publish.yml/badge.svg)](https://github.com/dhruv13x/jules-cli/actions/workflows/publish.yml)
+[![Codecov](https://codecov.io/gh/dhruv13x/jules-cli/graph/badge.svg)](https://codecov.io/gh/dhruv13x/jules-cli)
+[![Test Coverage](https://img.shields.io/badge/coverage-90%25%2B-brightgreen.svg)](https://github.com/dhruv13x/jules-cli/actions/workflows/test.yml)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/badge/linting-ruff-yellow.svg)](https://github.com/astral-sh/ruff)
+![Security](https://img.shields.io/badge/security-CodeQL-blue.svg)
+
+<!-- Usage -->
+![Downloads](https://img.shields.io/pypi/dm/jules-cli.svg)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/jules-cli.svg)](https://pypistats.org/packages/jules-cli)
+![OS](https://img.shields.io/badge/os-Linux%20%7C%20macOS%20%7C%20Windows-blue.svg)
+[![Python Versions](https://img.shields.io/pypi/pyversions/jules-cli.svg)](https://pypi.org/project/jules-cli/)
+
+<!-- License -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+<!-- Docs -->
+[![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://your-docs-link)
+
+</div>
+
+
 # jules-cli
 
 [![PyPI Version](https://img.shields.io/pypi/v/jules-cli.svg)](https://pypi.org/project/jules-cli/)
