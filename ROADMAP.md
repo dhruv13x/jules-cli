@@ -1,601 +1,76 @@
-📍 ROADMAP.md — Jules CLI (Enterprise-Grade Roadmap)
+# 🗺️ Jules CLI: Enterprise Roadmap
 
-> Last updated: Nov 2025
-Status: Active
-Owner: dhruv13x
-Version: 1.0 → Enterprise 4.0 Roadmap
-
-
-
-This roadmap outlines the short-term, mid-term, and long-term evolution of jules-cli — from a simple debugging/test automation utility to a full enterprise AI engineering assistant, capable of powering large-scale software delivery.
-
+**Vision**: To evolve Jules CLI from a powerful developer assistant into an autonomous, visionary engineering partner that seamlessly integrates with and elevates the entire software development lifecycle.
 
 ---
 
-🌟 Vision
+## Phase 1: Foundation (Q4 2025)
 
-“Make Jules CLI the most powerful local + cloud-integrated AI developer tool, capable of fully managing tests, debugging, refactoring, code generation, PR automation, project onboarding, CI pipelines, and full repository reasoning — all through simple terminal commands.”
+**Focus**: Core functionality, stability, security, and basic usage.
 
-
----
-
-🧭 Roadmap Overview
-
-The roadmap is divided into:
-
-1. Core Infrastructure & Stability
-
-
-2. Developer Experience (DX) Improvements
-
-
-3. AI Agent Enhancements (Jules API Extensions)
-
-
-4. Repository Automation & Git Integrations
-
-
-5. Testing, Debugging, and Refactoring
-
-
-6. Cloud / CI/CD Integrations
-
-
-7. Enterprise & Security
-
-
-8. Local Developer Tooling Ecosystem
-
-
-9. Ecosystem Features / Plugins
-
-
-10. Long-Term Vision (3–5 years)
-
-
-
-Each category includes short-term, mid-term, and long-term milestones.
-
+- [x] Stable CLI structure and packaging with PyPI Trusted Publisher.
+- [x] Single-session Jules API usage.
+- [x] Basic test automation (`auto` command).
+- [x] Local patch apply workflows.
+- [ ] Structured, debug-friendly logging (`--verbose`, `--json`).
+- [ ] Enhanced error handling for API timeouts and patch failures.
+- [ ] Caching for session IDs and build artifacts.
+- [ ] Secure local storage for API keys and tokens.
+- [ ] Automatic recovery if a patch fails to apply.
+- [ ] **New**: Self-updating mechanism to keep the CLI current (`jules upgrade`).
 
 ---
 
-1. 🧱 Core Infrastructure & Stability
+## Phase 2: The Standard (Q1 2026)
 
-✅ 1.0 Current
+**Focus**: Feature parity with top competitors, user experience improvements, and robust error handling.
 
-Stable CLI structure
-
-Packaging with PyPI Trusted Publisher
-
-Single-session Jules API usage
-
-Basic test automation (auto command)
-
-Local patch apply workflows
-
-
+- [x] `jules doctor` for comprehensive environment diagnostics.
+- [x] Support for `pytest`.
+- [ ] Interactive `jules init` wizard for project onboarding.
+- [ ] Configuration file support (`~/.config/jules/config.toml`).
+- [ ] Tab-completion for Bash, Zsh, and Fish shells.
+- [ ] Support for `unittest` and `nose2`.
+- [ ] Test report summaries and flaky test detection.
+- [ ] **New**: TUI (Text-based User Interface) for interactive session management.
 
 ---
 
-🟡 Short-Term (1.x Series)
+## Phase 3: The Ecosystem (Q2 2026)
 
-Add structured logging (--verbose, --json)
+**Focus**: Webhooks, API exposure, 3rd party plugins, and extensibility.
 
-Replace Python subprocess with async command runner
-
-Improve error handling for:
-
-API timeouts
-
-PR creation failures
-
-Patch apply conflicts
-
-
-Automatic recovery if patch fails:
-
-Retry request with “fallback minimal patch mode”
-
-
-Create internal event bus for CLI actions
-
-Add caching for session IDs & artifacts
-
-
+- [x] GitHub integration for PR creation.
+- [ ] Official GitHub Actions and GitLab CI integration templates.
+- [ ] Python API for programmatic access (`from jules_cli.api import Jules`).
+- [ ] A simple, extensible plugin architecture.
+- [ ] Webhook support for real-time notifications on task completion.
+- [ ] **New**: Integration with popular IDEs (VSCode, JetBrains) for a seamless workflow.
 
 ---
 
-🔵 Mid-Term (2.x Series)
+## Phase 4: The Vision (Q3 2026 - Q1 2027)
 
-Add local SQLite state database storing:
+**Focus**: "Futuristic" features, AI integration, advanced automation, and industry-disrupting capabilities.
 
-previous sessions
-
-patches
-
-failures
-
-metadata
-
-
-Add parallel execution support:
-
-run multiple Jules tasks in parallel
-
-
-Implement resumable sessions:
-
-jules resume <session_id>
-
-Add a cross-platform (Mac, Linux, Termux) compatibility layer
-
-
+- [x] AI-powered development assistant (`task` command).
+- [x] AI-powered test generation (`testgen` command).
+- [ ] AI-powered merge conflict resolution.
+- [ ] Multi-step, complex task execution.
+- [ ] Proactive "Spec-First" mode: generate specs, then code, then tests.
+- [ ] Full repository embedding for deep contextual understanding.
+- [ ] AI-generated integration tests and "test gap" analysis.
+- [ ] **New**: Predictive dependency analysis to flag potential future conflicts.
 
 ---
 
-🟣 Long-Term (3.x Series)
-
-Abstract backend → support multiple agents:
-
-Jules API
-
-Gemini API
-
-Local LLMs (via OpenAI-compatible API)
-
-
-Build internal plugin kernel with lifecycle hooks:
-
-pre-run
-
-post-run
-
-pre-patch
-
-post-patch
-
-
-Stateful multi-agent orchestration layer
-
-
-
----
-
-2. 🎯 Developer Experience (DX)
-
-🟡 Short-Term
-
-Add colored terminal UI with Rich/Textual
-
-Add jules doctor for environment diagnostics
-
-Add tab-completion (bash/zsh/fish)
-
-Interactive wizard:
-
-jules init
-
-
-🔵 Mid-Term
-
-Fully interactive UI:
-
-jules tui
-
-Features:
-
-View sessions
-
-View patches
-
-Apply/revert patches
-
-View PRs
-
-View test results
-
-
-Config file support:
-
-~/.config/jules/config.toml
-
-
-🟣 Long-Term
-
-Visual VSCode extension
-
-JetBrains plugin
-
-Auto-suggest commands based on repo context
-
-Local “AI Coach Mode” for junior engineers
-
-
-
----
-
-3. 🤖 AI Agent Enhancements (Jules API)
-
-Short-Term
-
-Support:
-
-Session approval
-
-Manual plan review
-
-Post-plan editing
-
-
-Add “force minimal patch” vs “large refactor patch”
-
-
-Mid-Term
-
-Multi-step instruction execution:
-
-jules task "
-    fix bug A,
-    refactor module B,
-    add tests for C
-"
-
-Add structured tasks:
-
-jules test.fix
-jules tests.add
-jules code.refactor
-jules doc.update
-
-
-Long-Term
-
-Full repository embedding syncing
-
-Intelligent patch merging across sessions
-
-“Spec-first” mode:
-
-Generate specs → generate code → generate tests → verify
-
-
-
-
----
-
-4. 🔗 Repository Automation & Git
-
-Short-Term
-
-Better conflict resolution messages
-
-Auto-create branches with semantic names:
-
-fix/...
-
-refactor/...
-
-test/...
-
-
-
-Mid-Term
-
-Patch conflict resolver powered by LLM
-
-Automated git rebase using AI
-
-Jules-driven git history rewrite (safe mode)
-
-
-Long-Term
-
-AI-managed monorepo orchestration
-
-PR stacks / batch PR automation
-
-AI-powered code ownership resolution
-
-
-
----
-
-5. 🧪 Automated Testing & Debugging
-
-Short-Term
-
-Add support for:
-
-pytest
-
-unittest
-
-nose2
-
-
-Add test report summaries
-
-Detect flaky tests & report them to Jules
-
-
-Mid-Term
-
-Intelligent test generation:
-
-jules tests.generate module=
-
-Auto-isolation:
-
-detect minimal failing files
-
-auto-run targeted tests
-
-
-Auto-build test skeletons for new modules
-
-
-Long-Term
-
-Full automated test suites per PR
-
-AI-generated integration tests
-
-“Test gap” analysis (coverage intelligence)
-
-Performance tests generation
-
-
-
----
-
-6. ☁️ CI/CD Integrations
-
-Short-Term
-
-GitHub Actions integration template
-
-GitLab CI example configs
-
-Provide status output:
-
-jules ci report
-
-
-Mid-Term
-
-CI Agent Mode:
-
-jules ci-fix
-
-Automatically fixes failing pipelines.
-
-Inline comments on PRs via API
-
-Automatic PR updates when tests fail
-
-
-Long-Term
-
-Full CI orchestration:
-
-Build pipelines
-
-Test pipelines
-
-Release pipelines
-
-
-Multi-cloud integrations (GCP, AWS, Azure)
-
-
-
----
-
-7. 🏢 Enterprise & Security
-
-Short-Term
-
-Secrets encryption (AES256) for:
-
-API keys
-
-GitHub tokens
-
-
-Audit logs:
-
-CLI commands
-
-API interactions
-
-Patch histories
-
-
-
-Mid-Term
-
-SSO-friendly login:
-
-jules login google
-
-Role-based feature access
-
-Compliance modes:
-
-SOC2
-
-HIPAA
-
-PCI-DSS
-
-
-
-Long-Term
-
-On-prem Jules-compatible agent (enterprise edition)
-
-Support for private AI endpoints
-
-Federated repo analysis
-
-
-
----
-
-8. 🔌 Local Developer Tools Ecosystem
-
-Short-Term
-
-Add Python APIs:
-
-from jules_cli.api import Jules
-
-Add rich events:
-
-on_patch
-
-on_session_create
-
-on_error
-
-
-
-Mid-Term
-
-Notebook magic commands:
-
-%jules task "explain this code"
-
-Local daemon mode:
-
-julesd
-
-
-Long-Term
-
-Desktop application (Electron or Tauri)
-
-Optional GUI with drag-and-drop patches
-
-
-
----
-
-9. 🧩 Plugin Ecosystem
-
-Short-Term
-
-Plugin loading system
-
-Create official plugin registry
-
-Example plugins:
-
-jules-plugin-format
-
-jules-plugin-docs
-
-
-
-Mid-Term
-
-Plugin marketplace
-
-3rd-party plugin signing
-
-Version compatibility checks
-
-
-Long-Term
-
-Enterprise-grade plugin deployment
-
-AI-curated plugin recommendations
-
-
-
----
-
-10. 🚀 Long-Term Vision (3–5 Years)
-
-Jules CLI becomes:
-
-A full autonomous engineering agent
-
-Capable of multi-repo, multi-service reasoning
-
-Handles:
-
-bugs
-
-architecture
-
-tests
-
-refactoring
-
-performance
-
-documentation
-
-dependency management
-
-
-
-Full enterprise compatibility:
-
-Policy engine
-
-Streaming pipelines
-
-Repository-wide continuous learning
-
-
-High-level futuristic features:
-
-Auto-migrate entire frameworks
-
-Convert legacy codebases to modern standards
-
-Auto-generate internal documentation sites
-
-Engineering operations (EngOps) AI layer
-
-
-
----
-
-🗂 Milestone Timeline
-
-Quarter	Milestone	Version
-
-Q4 2025	Stability + REPL UX	v1.5
-Q1 2026	Multi-session, plugins, caching DB	v2.0
-Q2 2026	Git conflict resolver, CI agent	v2.5
-Q3 2026	Local AI backend + multi-agent	v3.0
-Q1 2027	Enterprise security + on-prem	v3.5
-Q4 2027	Autonomous repo management	v4.0
-
-
-
----
-
-📝 Contribution Guidelines for Roadmap Features
-
-Each roadmap item must include:
-
-Feature spec
-
-Technical design doc
-
-API contract
-
-Test plan
-
-Rollout plan
-
-Migration notes
-
-
-
----
+## The Sandbox (Exploratory)
+
+**Focus**: Wild, creative, experimental ideas that set the project apart.
+
+- [ ] "AI Coach" mode for mentoring junior developers.
+- [ ] Voice-activated commands.
+- [ ] Gamified developer metrics and achievements.
+- [ ] Generative art for codebase visualization.
+- [ ] Autonomous, multi-repo, multi-service reasoning.
+- [ ] **New**: AI-driven architectural refactoring suggestions.
