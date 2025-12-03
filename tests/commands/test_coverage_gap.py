@@ -160,7 +160,7 @@ def test_pr_create_pr_success():
     with patch("jules_cli.commands.pr.github_create_pr") as mock_gh:
         mock_gh.return_value = {"html_url": "http://pr", "number": 123}
         # Patch GITHUB_TOKEN in the module
-        with patch("jules_cli.commands.pr.GITHUB_TOKEN", "token"):
+        with patch("os.getenv", return_value="token"):
              with patch("jules_cli.commands.pr._state", new_callable=dict) as mock_state:
                  mock_state.update({"repo_owner": "o", "repo_name": "r"})
                  with patch("jules_cli.commands.pr.git_current_branch", return_value="feature"):

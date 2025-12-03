@@ -94,10 +94,39 @@ class Config:
         """
         return self.data.get(section, {}).get(key, default)
 
+    def get_from_path(self, key_path: str, default: any = None) -> any:
+        """
+        Gets a value from the configuration using dot notation (e.g. 'core.default_repo').
+        """
+        keys = key_path.split(".")
+        current = self.data
+        for key in keys:
+            if isinstance(current, dict) and key in current:
+                current = current[key]
+            else:
+                return default
+        return current
+
+    def set_value(self, key_path: str, value: any) -> None:
+        """
+        Sets a value in the configuration using dot notation (e.g. 'core.default_repo').
+        Automatically saves the config.
+        """
+        keys = key_path.split(".")
+        current = self.data
+        for i, key in enumerate(keys[:-1]):
+            if key not in current:
+                current[key] = {}
+            current = current[key]
+            if not isinstance(current, dict):
+                 raise ConfigError(f"Key '{'.'.join(keys[:i+1])}' is not a section.")
+        
+        current[keys[-1]] = value
+        self.save()
+
     def save(self) -> None:
         """Saves the configuration to the file."""
         try:
-            logger.debug(f"Saving config data: {self.data!r} to path: {self.path!r}")
             with open(self.path, "w") as f:
                 toml.dump(self.data, f)
         except Exception as e:

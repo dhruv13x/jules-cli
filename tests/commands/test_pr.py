@@ -9,7 +9,7 @@ from jules_cli.state import _state
 def test_cmd_create_pr_success(mock_create_pr, mock_current_branch):
     _state["repo_owner"] = "owner"
     _state["repo_name"] = "repo"
-    with patch.object(pr, 'GITHUB_TOKEN', 'test_token'):
+    with patch('os.getenv', return_value='test_token'):
         pr.cmd_create_pr()
         mock_create_pr.assert_called_once_with(
             "owner",
@@ -29,7 +29,7 @@ def test_cmd_create_pr_success(mock_create_pr, mock_current_branch):
 def test_cmd_create_pr_with_issue_success(mock_create_pr, mock_current_branch):
     _state["repo_owner"] = "owner"
     _state["repo_name"] = "repo"
-    with patch.object(pr, 'GITHUB_TOKEN', 'test_token'):
+    with patch('os.getenv', return_value='test_token'):
         pr.cmd_create_pr(issue=123)
         mock_create_pr.assert_called_once_with(
             "owner",

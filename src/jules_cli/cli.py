@@ -17,7 +17,7 @@ from .commands.testgen import run_testgen
 from .commands.session import cmd_session_list, cmd_session_show
 from .commands.history import cmd_history_list, cmd_history_view
 from .commands.apply import cmd_apply
-from .commands.config_set import config_app
+from .commands.config import config_app
 from .commands.commit import cmd_commit_and_push
 from .commands.pr import cmd_create_pr
 from .commands.doctor import run_doctor_command

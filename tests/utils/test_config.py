@@ -25,16 +25,13 @@ def test_config_get_nested():
 
 def test_config_save():
     with patch("builtins.open", new_callable=mock_open) as m, \
-         patch("toml.dump") as dump_mock, \
-         patch("jules_cli.utils.config.logger") as mock_logger:
+         patch("toml.dump") as dump_mock:
 
         config = Config({"core": {"default_repo": "test"}}, "/tmp/dummy_path")
         config.save()
 
         m.assert_called_once_with("/tmp/dummy_path", "w")
         dump_mock.assert_called_once_with({"core": {"default_repo": "test"}}, m())
-        # Verify logger.debug was called instead of print
-        mock_logger.debug.assert_called()
 
 @patch("jules_cli.utils.config.Config.create_default_config")
 def test_config_from_file_raises_error(mock_create_default):
