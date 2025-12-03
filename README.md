@@ -86,6 +86,7 @@ jules auto
 
 | Command | Description | Arguments | Options |
 | --- | --- | --- | --- |
+| `init` | Interactive setup wizard. | | |
 | `auto` | Run pytest and auto-fix failures. | | |
 | `testgen` | Generate tests for a given file. | `file_path` | `--type, -t` |
 | `refactor` | Run a repository-wide refactor. | `instruction` | |

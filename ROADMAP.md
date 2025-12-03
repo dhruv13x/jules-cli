@@ -28,7 +28,7 @@
 
 - [x] `jules doctor` for comprehensive environment diagnostics.
 - [x] Support for `pytest`.
-- [ ] Interactive `jules init` wizard for project onboarding.
+- [x] Interactive `jules init` wizard for project onboarding.
 - [ ] Configuration file support (`~/.config/jules/config.toml`).
 - [ ] Tab-completion for Bash, Zsh, and Fish shells.
 - [ ] Support for `unittest` and `nose2`.

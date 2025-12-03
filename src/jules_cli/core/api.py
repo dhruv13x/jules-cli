@@ -17,9 +17,9 @@ def _http_request(method: str, path: str, json_data: Optional[dict] = None, para
     if timeout is None:
         timeout = config.get_nested("core", "api_timeout", 60)
 
-    jules_key = os.getenv("JULES_API_KEY")
+    jules_key = os.getenv("JULES_API_KEY") or config.get_nested("core", "jules_api_key")
     if not jules_key:
-        raise JulesAPIError("JULES_API_KEY is not set. Please set the JULES_API_KEY environment variable.")
+        raise JulesAPIError("JULES_API_KEY is not set in environment or config. Please set the JULES_API_KEY environment variable or run `jules init`.")
     headers = {"X-Goog-Api-Key": jules_key, "Content-Type": "application/json"}
 
     url = f"{BASE}{path}"
