@@ -4,6 +4,7 @@ import typer
 from typing import Optional
 from ..commands.task import run_task
 from ..utils.logging import logger
+from ..utils.ignore import collect_context_files
 
 MASTER_SUGGEST_PROMPT = """
 You are a Senior Staff Engineer auditing this repository.
@@ -87,6 +88,21 @@ def cmd_suggest(
     # Append specific focus if provided
     if focus:
         prompt += f"\n\nAdditionally, please prioritize your analysis on: {focus.upper()}."
+
+    # Collect local file context respecting .julesignore
+    # Note: Currently run_task/create_session doesn't accept file_list,
+    # so we append the file structure to the prompt to give context about what is being scanned.
+    # In future, create_session should accept local_files explicitly.
+    try:
+        files = collect_context_files()
+        file_list_str = "\n".join(files[:500]) # Limit to 500 files to avoid huge prompt
+        if len(files) > 500:
+            file_list_str += f"\n... and {len(files) - 500} more files."
+
+        prompt += f"\n\nContext - Files in repository (filtered by .julesignore):\n{file_list_str}"
+        logger.debug(f"Attached {len(files)} files to the prompt context.")
+    except Exception as e:
+        logger.warning(f"Failed to collect local context files: {e}")
 
     logger.info("This may take a moment as Jules reads the repository context...")
     
