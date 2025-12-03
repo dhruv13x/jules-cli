@@ -16,6 +16,7 @@
 - [ ] Enhanced error handling for API timeouts and patch failures.
 - [ ] Caching for session IDs and build artifacts.
 - [ ] Secure local storage for API keys and tokens.
+- [x] Context Management (.julesignore) for secure file filtering.
 - [ ] Automatic recovery if a patch fails to apply.
 - [ ] **New**: Self-updating mechanism to keep the CLI current (`jules upgrade`).
 
