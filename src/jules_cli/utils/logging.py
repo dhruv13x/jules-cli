@@ -30,7 +30,12 @@ def setup_logging(level="INFO", color=True):
     if logger.handlers:
         for handler in list(logger.handlers):
             logger.removeHandler(handler)
-            handler.close() # Close the handler stream if it's open
+            # Only close FileHandlers, not StreamHandlers (which might wrap stdout/stderr)
+            if isinstance(handler, logging.FileHandler):
+                try:
+                    handler.close()
+                except Exception:
+                    pass
 
     logger.setLevel(level)
     handler = logging.StreamHandler()
