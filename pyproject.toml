@@ -1,6 +1,6 @@
 [project]
 name = "jules-cli"
-version = "11.0.3"
+version = "12.0.0"
 description = "A developer CLI for Jules API automation"
 readme = "README.md"
     authors = [{ name = "dhruv13x" }]
