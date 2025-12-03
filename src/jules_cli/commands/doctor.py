@@ -82,3 +82,5 @@ def run_doctor_command():
     for check, result in checks.items():
         logger.info(f"- {check}: {result}")
     return checks
+
+cmd_doctor = run_doctor_command

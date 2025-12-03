@@ -17,7 +17,7 @@ from .commands.testgen import run_testgen
 from .commands.session import cmd_session_list, cmd_session_show
 from .commands.history import cmd_history_list, cmd_history_view
 from .commands.apply import cmd_apply
-from .commands.config_set import config_app
+from .commands.config import config_app
 from .commands.commit import cmd_commit_and_push
 from .commands.pr import cmd_create_pr
 from .commands.doctor import run_doctor_command
@@ -26,6 +26,7 @@ from .commands.plan import cmd_approve, cmd_reject
 from .commands.workspace import app as workspace_app
 from .commands.suggest import cmd_suggest
 from .commands.interact import cmd_interact
+from .commands.init import cmd_init
 from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
 from .state import _state
@@ -325,6 +326,12 @@ def doctor():
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
 
+@app.command(name="init")
+def init():
+    """
+    Interactive wizard to set up Jules CLI.
+    """
+    cmd_init()
 
 @app.command()
 def suggest(
