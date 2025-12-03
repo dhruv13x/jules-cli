@@ -70,6 +70,7 @@ jules auto
 - **AI-Powered Development Assistant**: Issue natural-language commands to refactor code, add test coverage, or fix bugs.
 - **Stateful Interactive REPL**: Access a full command shell for an immersive development experience.
 - **GitHub Integration**: Automatically create branches, commits, and pull requests.
+- **Structured Logging**: Debug-friendly logs with `--debug`, `--verbose`, and `--json` support for better observability.
 - **Trusted Auth**: Uses Google's Jules API with the `X-Goog-Api-Key` header for secure and isolated sessions.
 
 ---

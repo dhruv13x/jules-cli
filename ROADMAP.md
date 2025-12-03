@@ -12,7 +12,7 @@
 - [x] Single-session Jules API usage.
 - [x] Basic test automation (`auto` command).
 - [x] Local patch apply workflows.
-- [ ] Structured, debug-friendly logging (`--verbose`, `--json`).
+- [x] Structured, debug-friendly logging (`--verbose`, `--json`).
 - [ ] Enhanced error handling for API timeouts and patch failures.
 - [ ] Caching for session IDs and build artifacts.
 - [ ] Secure local storage for API keys and tokens.
