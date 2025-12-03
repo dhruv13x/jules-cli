@@ -5,9 +5,8 @@ from ..state import _state
 from ..git.vcs import git_current_branch, github_create_pr, git_get_remote_repo_info
 import os
 from ..utils.logging import logger
+from ..utils.config import config
 from ..cache import save_to_cache
-
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 def cmd_create_pr(
     title: str = "Automated fix from Jules CLI",
@@ -18,10 +17,20 @@ def cmd_create_pr(
     assignees: List[str] = None,
     issue: int = None,
 ):
-    if not GITHUB_TOKEN:
-        logger.error("GITHUB_TOKEN not set; cannot create PR.")
+    token = os.getenv("GITHUB_TOKEN") or config.get_nested("core", "github_token")
+    if not token:
+        logger.error("GITHUB_TOKEN not set in environment or config; cannot create PR.")
         return {"status": "error", "message": "GITHUB_TOKEN not set."}
     
+    # We must ensure the github_create_pr function uses this token.
+    # Currently `github_create_pr` likely uses `GITHUB_TOKEN` from env or global.
+    # We should pass it or ensure it can access it.
+    # Let's check `src/jules_cli/git/vcs.py`.
+    # For now, let's assume `github_create_pr` reads env.
+    # If so, we might need to set it in env temporarily if not present?
+    if not os.getenv("GITHUB_TOKEN") and token:
+        os.environ["GITHUB_TOKEN"] = token
+
     owner = _state.get("repo_owner")
     repo = _state.get("repo_name")
 
