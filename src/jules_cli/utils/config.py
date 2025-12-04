@@ -2,6 +2,7 @@
 
 import os
 import toml
+import keyring
 from .exceptions import ConfigError
 from .logging import logger
 
@@ -79,6 +80,37 @@ class Config:
             The value of the key.
         """
         return self.data.get(key, default)
+
+    def get_secret(self, key: str) -> any:
+        """
+        Retrieves a secret value (e.g., API key, token).
+        Order of precedence:
+        1. Environment Variable
+        2. System Keyring
+        3. Config File (Legacy/Fallback) - Checks 'secrets' section or root.
+        """
+        # 1. Environment Variable
+        env_val = os.getenv(key)
+        if env_val:
+            return env_val
+
+        # 2. Keyring
+        try:
+            # We use 'jules-cli' as the service name
+            keyring_val = keyring.get_password("jules-cli", key)
+            if keyring_val:
+                return keyring_val
+        except Exception:
+            # If keyring is not available or fails, we continue
+            pass
+
+        # 3. Config File
+        # Check if it's in a 'secrets' section first
+        if "secrets" in self.data and key in self.data["secrets"]:
+            return self.data["secrets"][key]
+
+        # Or just top level
+        return self.data.get(key)
 
     def get_nested(self, section: str, key: str, default: any = None) -> any:
         """

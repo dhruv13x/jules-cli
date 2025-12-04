@@ -18,6 +18,7 @@ from .commands.session import cmd_session_list, cmd_session_show
 from .commands.history import cmd_history_list, cmd_history_view
 from .commands.apply import cmd_apply
 from .commands.config import config_app
+from .commands.auth import auth_app
 from .commands.commit import cmd_commit_and_push
 from .commands.pr import cmd_create_pr
 from .commands.doctor import run_doctor_command
@@ -53,6 +54,7 @@ app.add_typer(history_app)
 app.add_typer(pr_app)
 app.add_typer(workspace_app)
 app.add_typer(config_app)
+app.add_typer(auth_app)
 
 def load_plugins():
     for entry_point in metadata.entry_points(group="jules.plugins"):
@@ -92,8 +94,8 @@ def main(
 
     setup_logging(level=log_level, color=use_color)
 
-    # Skip environment and DB checks for the 'doctor' command
-    if ctx.invoked_subcommand != "doctor":
+    # Skip environment and DB checks for the 'doctor', 'auth', and 'init' commands
+    if ctx.invoked_subcommand not in ["doctor", "auth", "init"]:
         try:
             check_env()
         except JulesError as e:

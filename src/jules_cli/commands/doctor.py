@@ -11,7 +11,7 @@ from ..utils.commands import run_cmd
 from ..git.vcs import git_get_remote_repo_info
 
 def check_jules_api_key():
-    return "JULES_API_KEY is set." if os.getenv("JULES_API_KEY") else "JULES_API_KEY is not set."
+    return "JULES_API_KEY is set." if config.get_secret("JULES_API_KEY") else "JULES_API_KEY is not set."
 
 def check_git_installed():
     return "Git is installed." if shutil.which("git") else "Git is not installed."
@@ -31,7 +31,7 @@ def check_internet_connectivity():
         return "No internet connectivity."
 
 def check_github_token():
-    return "GITHUB_TOKEN is set." if os.getenv("GITHUB_TOKEN") else "GITHUB_TOKEN is not set (optional)."
+    return "GITHUB_TOKEN is set." if config.get_secret("GITHUB_TOKEN") else "GITHUB_TOKEN is not set (optional)."
 
 def check_config_file():
     return f"Config file found at {DEFAULT_CONFIG_PATH}." if os.path.exists(DEFAULT_CONFIG_PATH) else "Config file not found."
