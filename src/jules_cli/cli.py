@@ -28,6 +28,7 @@ from .commands.workspace import app as workspace_app
 from .commands.suggest import cmd_suggest
 from .commands.interact import cmd_interact
 from .commands.init import cmd_init
+from .commands.upgrade import upgrade_app
 from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
 from .state import _state
@@ -55,6 +56,7 @@ app.add_typer(pr_app)
 app.add_typer(workspace_app)
 app.add_typer(config_app)
 app.add_typer(auth_app)
+app.add_typer(upgrade_app)
 
 def load_plugins():
     for entry_point in metadata.entry_points(group="jules.plugins"):
