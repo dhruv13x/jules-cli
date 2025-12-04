@@ -3,7 +3,7 @@ import os
 import anthropic
 from ..utils.logging import logger
 
-def resolve_conflict_with_ai(rejected_patch: str):
+def resolve_conflict_with_ai(rejected_patch: str, file_content: str = None):
     """
     Sends the rejected patch to an AI service to generate a conflict-free patch.
     """
@@ -16,6 +16,10 @@ def resolve_conflict_with_ai(rejected_patch: str):
 
     client = anthropic.Anthropic(api_key=api_key)
 
+    prompt = f"The following patch failed to apply. Please resolve the conflicts and return a conflict-free patch.\n\n{rejected_patch}"
+    if file_content:
+        prompt += f"\n\nHere is the current content of the file being patched:\n\n{file_content}"
+
     try:
         message = client.messages.create(
             model="claude-2.1",
@@ -23,7 +27,7 @@ def resolve_conflict_with_ai(rejected_patch: str):
             messages=[
                 {
                     "role": "user",
-                    "content": f"The following patch failed to apply. Please resolve the conflicts and return a conflict-free patch.\n\n{rejected_patch}",
+                    "content": prompt,
                 }
             ],
         )

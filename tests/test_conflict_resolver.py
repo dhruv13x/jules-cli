@@ -30,26 +30,49 @@ class TestConflictResolver(unittest.TestCase):
 
     @patch('jules_cli.patch.resolver.anthropic.Anthropic')
     @patch('jules_cli.patch.apply.run_cmd')
-    def test_failed_patch_application_with_successful_ai_resolution(self, mock_run_cmd, mock_anthropic):
+    @patch('builtins.open', new_callable=MagicMock)
+    @patch('os.remove')
+    @patch('os.path.exists')
+    def test_failed_patch_application_with_successful_ai_resolution(self, mock_exists, mock_remove, mock_open, mock_run_cmd, mock_anthropic):
         # Mock failed patch application followed by successful AI resolution
-        mock_run_cmd.side_effect = [(1, "Error", "Hunk #1 FAILED at 1.\n - old line\n + new line"), (0, "Success", "")]
+        # We need to simulate the patch output containing the filename being patched
+        # patch usually prints "patching file X" to stdout, and Hunk failures to stdout or stderr.
+        # Let's put the filename in stdout (out) and the hunks in stderr (err) or both in out/err depending on implementation.
+        # My implementation searches `out` for "patching file".
+
+        stdout_output = "patching file target_file.py\n"
+        stderr_output = "Hunk #1 FAILED at 1.\n - old line\n + new line"
+
+        mock_run_cmd.side_effect = [(1, stdout_output, stderr_output), (0, "Success", "")]
         mock_anthropic.return_value.messages.create.return_value.content = [MagicMock(text="resolved_patch_text")]
+
+        # Mock file reading for the target file
+        file_mock = MagicMock()
+        file_mock.read.return_value = "original file content"
+
+        # Configure open mock to return file_mock when opening target_file.py
+        # We need side_effect to handle different files
+        def open_side_effect(filename, mode='r', encoding=None):
+            if filename == "target_file.py":
+                return file_mock
+            return MagicMock() # Return a dummy mock for other files (like tmp_patch.diff)
+
+        mock_open.side_effect = open_side_effect
+        # We also need __enter__ return value for the context manager
+        file_mock.__enter__.return_value = file_mock
 
         with patch.dict('os.environ', {'ANTHROPIC_API_KEY': 'test_key'}):
             apply_patch_text("dummy_patch_text")
 
-        # Verify that run_cmd was called twice and the AI service was called once with the rejected hunk
+        # Verify that run_cmd was called twice and the AI service was called once with the rejected hunk AND file content
         self.assertEqual(mock_run_cmd.call_count, 2)
-        mock_anthropic.return_value.messages.create.assert_called_once_with(
-            model="claude-2.1",
-            max_tokens=4096,
-            messages=[
-                {
-                    "role": "user",
-                    "content": "The following patch failed to apply. Please resolve the conflicts and return a conflict-free patch.\n\n- old line\n+ new line",
-                }
-            ],
-        )
+
+        # Check if the prompt includes the file content
+        call_args = mock_anthropic.return_value.messages.create.call_args
+        content_sent = call_args[1]['messages'][0]['content']
+
+        self.assertIn("original file content", content_sent)
+        self.assertIn("- old line\n+ new line", content_sent)
 
     @patch('jules_cli.patch.apply.logger')
     @patch('jules_cli.patch.resolver.anthropic.Anthropic')
