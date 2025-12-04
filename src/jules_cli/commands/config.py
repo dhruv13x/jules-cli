@@ -2,6 +2,7 @@
 
 import typer
 import json
+import ast
 from ..utils.config import config
 from ..utils.logging import logger
 
@@ -32,17 +33,24 @@ def get_config(key: str):
 def set_config(key: str, value: str):
     """
     Set a configuration value (e.g., 'core.api_timeout 120').
-    Automatically infers boolean and integer types.
+    Automatically infers boolean, integer, list, and dict types.
     """
     # Infer type
     real_value = value
-    if value.lower() == "true":
-        real_value = True
-    elif value.lower() == "false":
-        real_value = False
-    elif value.isdigit():
-        real_value = int(value)
-    
+    try:
+        # Try to parse as a python literal (bool, int, float, list, dict)
+        real_value = ast.literal_eval(value)
+    except (ValueError, SyntaxError):
+        # If it fails, treat as a string
+        # Handle simple boolean strings that literal_eval might miss if lowercase?
+        # ast.literal_eval('true') fails, 'True' works.
+        if value.lower() == "true":
+            real_value = True
+        elif value.lower() == "false":
+            real_value = False
+        else:
+            real_value = value
+
     try:
         config.set_value(key, real_value)
         logger.info(f"Set '{key}' to '{real_value}'")

@@ -13,7 +13,7 @@
 - [x] Basic test automation (`auto` command).
 - [x] Local patch apply workflows.
 - [x] Structured, debug-friendly logging (`--verbose`, `--json`).
-- [ ] Enhanced error handling for API timeouts and patch failures.
+- [x] Enhanced error handling for API timeouts and patch failures.
 - [ ] Caching for session IDs and build artifacts.
 - [ ] Secure local storage for API keys and tokens.
 - [x] Context Management (.julesignore) for secure file filtering.
@@ -29,7 +29,7 @@
 - [x] `jules doctor` for comprehensive environment diagnostics.
 - [x] Support for `pytest`.
 - [x] Interactive `jules init` wizard for project onboarding.
-- [ ] Configuration file support (`~/.config/jules/config.toml`).
+- [x] Configuration file support (`~/.config/jules/config.toml`).
 - [ ] Tab-completion for Bash, Zsh, and Fish shells.
 - [ ] Support for `unittest` and `nose2`.
 - [ ] Test report summaries and flaky test detection.
@@ -56,7 +56,7 @@
 
 - [x] AI-powered development assistant (`task` command).
 - [x] AI-powered test generation (`testgen` command).
-- [ ] AI-powered merge conflict resolution.
+- [x] AI-powered merge conflict resolution.
 - [ ] Multi-step, complex task execution.
 - [ ] Proactive "Spec-First" mode: generate specs, then code, then tests.
 - [ ] Full repository embedding for deep contextual understanding.

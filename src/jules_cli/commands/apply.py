@@ -18,8 +18,8 @@ def cmd_apply():
             try:
                 res = poll_for_result(session_id, timeout=5)
                 _state["last_result"] = res
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to fetch result from session {session_id}: {e}")
 
     if not res:
         logger.warning("No last result to apply.")

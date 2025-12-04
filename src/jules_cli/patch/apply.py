@@ -43,9 +43,21 @@ def apply_patch_text(patch_text: str):
         # Extract rejected hunks
         rejected_hunks = extract_rejected_hunks(err)
 
+        # Attempt to extract filename from stdout
+        file_content = None
+        match = re.search(r"patching file (.+)", out)
+        if match:
+            filename = match.group(1).strip()
+            if os.path.exists(filename):
+                try:
+                    with open(filename, "r", encoding="utf-8") as f:
+                        file_content = f.read()
+                except Exception as e:
+                    logger.warning(f"Could not read file {filename} for context: {e}")
+
         # Attempt to resolve conflict with AI
         logger.info("Attempting AI conflict resolution...")
-        resolved_patch = resolve_conflict_with_ai(rejected_hunks)
+        resolved_patch = resolve_conflict_with_ai(rejected_hunks, file_content)
 
         if not resolved_patch:
             logger.warning("AI resolution failed. Please resolve conflicts manually.")
