@@ -74,6 +74,7 @@ jules auto
 - **Context Management**: Use `.julesignore` to filter out sensitive files and directories (like `.env`, `node_modules/`) from being sent to the AI.
 - **Trusted Auth**: Uses Google's Jules API with the `X-Goog-Api-Key` header for secure and isolated sessions.
 - **Secure Credential Storage**: Safely stores API keys in your system keyring (`jules auth login`) instead of plain text files.
+- **Self-Update Mechanism**: Keep your CLI up-to-date with `jules upgrade`.
 
 ---
 
@@ -107,6 +108,7 @@ jules auto
 | `doctor` | Run environment validation checks. | | |
 | `suggest` | Proactively scan the codebase and suggest improvements. | | `--focus, -f`, `--security`, `--tests`, `--chore` |
 | `interact` | Start an interactive chat session with Jules. | `prompt` | |
+| `upgrade` | Self-update the Jules CLI. | | |
 
 ---
 

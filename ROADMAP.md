@@ -18,7 +18,7 @@
 - [x] Secure local storage for API keys and tokens.
 - [x] Context Management (.julesignore) for secure file filtering.
 - [ ] Automatic recovery if a patch fails to apply.
-- [ ] **New**: Self-updating mechanism to keep the CLI current (`jules upgrade`).
+- [x] **New**: Self-updating mechanism to keep the CLI current (`jules upgrade`).
 
 ---
 
