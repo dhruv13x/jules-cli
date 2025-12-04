@@ -9,7 +9,7 @@ from ..utils.commands import run_cmd
 from ..utils.exceptions import GitError
 from ..utils.config import config
 
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+# Note: GITHUB_TOKEN is now retrieved dynamically inside functions to support keyring/config updates.
 
 def git_current_branch() -> str:
     code, out, _ = run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
@@ -92,7 +92,7 @@ def github_create_pr(
     reviewers: list = None,
     assignees: list = None,
 ):
-    github_token = os.getenv("GITHUB_TOKEN")
+    github_token = config.get_secret("GITHUB_TOKEN")
     if not github_token:
         raise GitError("GITHUB_TOKEN not set; cannot create PR automatically.")
     url = f"https://api.github.com/repos/{owner}/{repo}/pulls"

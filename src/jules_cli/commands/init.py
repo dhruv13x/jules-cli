@@ -11,10 +11,10 @@ def cmd_init():
     logger.info("Welcome to the Jules CLI Initialization Wizard! 🚀")
 
     # 1. Ask for API Key
-    api_key = typer.prompt("Enter your Jules API Key", default=os.getenv("JULES_API_KEY", ""), show_default=False)
+    api_key = typer.prompt("Enter your Jules API Key", default=config.get_secret("JULES_API_KEY") or "", show_default=False)
 
     # 2. Ask for GitHub Token
-    github_token = typer.prompt("Enter your GitHub Token", default=os.getenv("GITHUB_TOKEN", ""), show_default=False)
+    github_token = typer.prompt("Enter your GitHub Token", default=config.get_secret("GITHUB_TOKEN") or "", show_default=False)
 
     # 3. Default Repo
     default_repo = typer.prompt("Enter default repository (e.g. owner/repo)", default=config.get_nested("core", "default_repo", ""))

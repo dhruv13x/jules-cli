@@ -17,9 +17,9 @@ def cmd_create_pr(
     assignees: List[str] = None,
     issue: int = None,
 ):
-    token = os.getenv("GITHUB_TOKEN") or config.get_nested("core", "github_token")
+    token = config.get_secret("GITHUB_TOKEN") or config.get_nested("core", "github_token")
     if not token:
-        logger.error("GITHUB_TOKEN not set in environment or config; cannot create PR.")
+        logger.error("GITHUB_TOKEN not set in environment, keyring, or config; cannot create PR.")
         return {"status": "error", "message": "GITHUB_TOKEN not set."}
     
     # We must ensure the github_create_pr function uses this token.

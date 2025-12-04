@@ -73,6 +73,7 @@ jules auto
 - **Structured Logging**: Debug-friendly logs with `--debug`, `--verbose`, and `--json` support for better observability.
 - **Context Management**: Use `.julesignore` to filter out sensitive files and directories (like `.env`, `node_modules/`) from being sent to the AI.
 - **Trusted Auth**: Uses Google's Jules API with the `X-Goog-Api-Key` header for secure and isolated sessions.
+- **Secure Credential Storage**: Safely stores API keys in your system keyring (`jules auth login`) instead of plain text files.
 
 ---
 
@@ -87,6 +88,7 @@ jules auto
 | Command | Description | Arguments | Options |
 | --- | --- | --- | --- |
 | `init` | Interactive setup wizard. | | |
+| `auth login` | Interactively set API keys securely. | | |
 | `auto` | Run pytest and auto-fix failures. | | |
 | `testgen` | Generate tests for a given file. | `file_path` | `--type, -t` |
 | `refactor` | Run a repository-wide refactor. | `instruction` | |
