@@ -5,6 +5,7 @@ from typer.testing import CliRunner
 from jules_cli.cli import app
 from unittest.mock import patch, MagicMock
 from jules_cli.utils.exceptions import JulesError
+import jules_cli.utils.decorators as decorators
 
 runner = CliRunner()
 
@@ -64,47 +65,55 @@ def test_cli_pr_create_fail_no_repo(mock_state, mock_config, mock_create_pr, moc
 @patch("jules_cli.cli.check_env")
 @patch("jules_cli.cli.init_db")
 @patch("jules_cli.cli.cmd_suggest")
-@patch("jules_cli.cli.add_history_record")
 @patch("jules_cli.cli._state", new_callable=dict)
-def test_cli_suggest(mock_state, mock_history, mock_suggest, mock_init, mock_check, mock_logger):
-    mock_suggest.return_value = {"suggestions": []}
-    mock_state.update({"current_session": {"id": "sess1"}})
+def test_cli_suggest(mock_state, mock_suggest, mock_init, mock_check, mock_logger):
+    # Create shared mock for history record
+    mock_add_history_record = MagicMock()
+    with patch("jules_cli.cli.add_history_record", mock_add_history_record), \
+         patch.object(decorators, "add_history_record", mock_add_history_record):
 
-    result = runner.invoke(app, ["suggest", "--security", "--focus", "auth"])
-    assert result.exit_code == 0
-    mock_suggest.assert_called_with(focus="auth", security=True, tests=False, chore=False)
-    mock_history.assert_called()
-    # verify prompt desc
-    prompt = mock_history.call_args[1]["prompt"]
-    assert "suggest" in prompt
-    assert "--security" in prompt
-    assert "--focus auth" in prompt
+        mock_suggest.return_value = {"suggestions": []}
+        mock_state.update({"current_session": {"id": "sess1"}})
+
+        result = runner.invoke(app, ["suggest", "--security", "--focus", "auth"])
+        assert result.exit_code == 0
+        mock_suggest.assert_called_with(focus="auth", security=True, tests=False, chore=False)
+        mock_add_history_record.assert_called()
+        # verify prompt desc
+        prompt = mock_add_history_record.call_args[1]["prompt"]
+        assert "suggest" in prompt
+        assert "--security" in prompt
+        assert "--focus auth" in prompt
 
 @patch("jules_cli.cli.check_env")
 @patch("jules_cli.cli.init_db")
 @patch("jules_cli.cli.run_refactor")
-@patch("jules_cli.cli.add_history_record")
 @patch("jules_cli.cli._state", new_callable=dict)
-def test_cli_refactor(mock_state, mock_history, mock_refactor, mock_init, mock_check, mock_logger):
-    mock_refactor.return_value = {"status": "success"}
+def test_cli_refactor(mock_state, mock_refactor, mock_init, mock_check, mock_logger):
+    mock_add_history_record = MagicMock()
+    with patch("jules_cli.cli.add_history_record", mock_add_history_record), \
+         patch.object(decorators, "add_history_record", mock_add_history_record):
+        mock_refactor.return_value = {"status": "success"}
 
-    result = runner.invoke(app, ["refactor", "fix indent"])
-    assert result.exit_code == 0
-    mock_refactor.assert_called_with("fix indent")
-    mock_history.assert_called()
+        result = runner.invoke(app, ["refactor", "fix indent"])
+        assert result.exit_code == 0
+        mock_refactor.assert_called_with("fix indent")
+        mock_add_history_record.assert_called()
 
 @patch("jules_cli.cli.check_env")
 @patch("jules_cli.cli.init_db")
 @patch("jules_cli.cli.run_testgen")
-@patch("jules_cli.cli.add_history_record")
 @patch("jules_cli.cli._state", new_callable=dict)
-def test_cli_testgen(mock_state, mock_history, mock_testgen, mock_init, mock_check, mock_logger):
-    mock_testgen.return_value = {"status": "generated"}
+def test_cli_testgen(mock_state, mock_testgen, mock_init, mock_check, mock_logger):
+    mock_add_history_record = MagicMock()
+    with patch("jules_cli.cli.add_history_record", mock_add_history_record), \
+         patch.object(decorators, "add_history_record", mock_add_history_record):
+        mock_testgen.return_value = {"status": "generated"}
 
-    result = runner.invoke(app, ["testgen", "file.py", "--type", "missing"])
-    assert result.exit_code == 0
-    mock_testgen.assert_called_with("file.py", test_type="missing")
-    mock_history.assert_called()
+        result = runner.invoke(app, ["testgen", "file.py", "--type", "missing"])
+        assert result.exit_code == 0
+        mock_testgen.assert_called_with("file.py", test_type="missing")
+        mock_add_history_record.assert_called()
 
 @patch("jules_cli.cli.check_env")
 @patch("jules_cli.cli.init_db")
@@ -120,16 +129,18 @@ def test_cli_commit(mock_state, mock_commit, mock_init, mock_check, mock_logger)
 @patch("jules_cli.cli.check_env")
 @patch("jules_cli.cli.init_db")
 @patch("jules_cli.cli.cmd_apply")
-@patch("jules_cli.cli.add_history_record")
 @patch("jules_cli.cli._state", new_callable=dict)
-def test_cli_apply(mock_state, mock_history, mock_apply, mock_init, mock_check, mock_logger):
-    mock_apply.return_value = {"status": "applied"}
-    mock_state.update({"session_id": "sess1", "last_patch": "patchdata"})
+def test_cli_apply(mock_state, mock_apply, mock_init, mock_check, mock_logger):
+    mock_add_history_record = MagicMock()
+    with patch("jules_cli.cli.add_history_record", mock_add_history_record), \
+         patch.object(decorators, "add_history_record", mock_add_history_record):
+        mock_apply.return_value = {"status": "applied"}
+        mock_state.update({"session_id": "sess1", "last_patch": "patchdata"})
 
-    result = runner.invoke(app, ["apply"])
-    assert result.exit_code == 0
-    mock_apply.assert_called()
-    mock_history.assert_called()
+        result = runner.invoke(app, ["apply"])
+        assert result.exit_code == 0
+        mock_apply.assert_called()
+        mock_add_history_record.assert_called()
 
 @patch("jules_cli.cli.check_env")
 @patch("jules_cli.cli.init_db")
@@ -138,17 +149,6 @@ def test_main_plugin_load_error(mock_load, mock_init, mock_check, mock_logger):
     # simulate error during plugin load
     mock_load.side_effect = JulesError("Plugin error")
 
-    # Since main block calling load_plugins is under if __name__ == "__main__":
-    # we cannot easily test it via CliRunner invoke of app(), because app() is the Typer object.
-    # The code `if __name__ == "__main__": load_plugins(); app()` is entry point logic.
-    # But load_plugins is called before app().
-    # We can test `load_plugins` logic separately if it was part of app callback, but it is not.
-    # It is outside.
-
-    # However, if we look at `cli.py`, `load_plugins` adds commands to `app`.
-    # We can call `load_plugins` and see if it handles errors?
-    # But the `try...except` block is in `if __name__ == "__main__"`.
-    # So we can't test that exception handling via `invoke`.
     pass
 
 @patch("jules_cli.cli.check_env")
@@ -255,11 +255,13 @@ def test_cli_interact(mock_state, mock_interact, mock_init, mock_check, mock_log
 @patch("jules_cli.cli.check_env")
 @patch("jules_cli.cli.init_db")
 @patch("jules_cli.cli.run_task")
-@patch("jules_cli.cli.add_history_record")
 @patch("jules_cli.cli._state", new_callable=dict)
-def test_cli_task(mock_state, mock_history, mock_task, mock_init, mock_check, mock_logger):
-    mock_task.return_value = {"status": "done"}
-    result = runner.invoke(app, ["task", "do something"])
-    assert result.exit_code == 0
-    mock_task.assert_called_with("do something")
-    mock_history.assert_called()
+def test_cli_task(mock_state, mock_task, mock_init, mock_check, mock_logger):
+    mock_add_history_record = MagicMock()
+    with patch("jules_cli.cli.add_history_record", mock_add_history_record), \
+         patch.object(decorators, "add_history_record", mock_add_history_record):
+        mock_task.return_value = {"status": "done"}
+        result = runner.invoke(app, ["task", "do something"])
+        assert result.exit_code == 0
+        mock_task.assert_called_with("do something")
+        mock_add_history_record.assert_called()

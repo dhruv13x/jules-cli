@@ -37,6 +37,7 @@ from .utils.logging import logger, setup_logging
 from .utils.exceptions import JulesError
 from .utils.config import config
 from .utils.output import print_json
+from .utils.decorators import with_output_handling, record_history
 from .banner import print_logo
 
 app = typer.Typer(
@@ -114,6 +115,7 @@ def main(
 
 
 @app.command()
+@with_output_handling
 def auto(
     runner: str = typer.Option(
         "pytest",
@@ -130,11 +132,11 @@ def auto(
     """
     Run tests and auto-fix failures.
     """
-    result = auto_fix_command(runner=runner, detect_flaky=detect_flaky)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return auto_fix_command(runner=runner, detect_flaky=detect_flaky)
 
 @app.command()
+@with_output_handling
+@record_history(prompt_template="generate {test_type} tests for {file_path}", status="testgen_run")
 def testgen(
     file_path: str,
     test_type: str = typer.Option(
@@ -147,101 +149,76 @@ def testgen(
     """
     Generate tests for a given file.
     """
-    result = run_testgen(file_path, test_type=test_type)
-    
-    sess = _state.get("current_session")
-    session_id = sess.get("id") if sess else os.urandom(8).hex()
-    _state["session_id"] = session_id
-
-    add_history_record(session_id=session_id, prompt=f"generate {test_type} tests for {file_path}", status="testgen_run")
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return run_testgen(file_path, test_type=test_type)
 
 @app.command()
+@with_output_handling
+@record_history(prompt_arg_name="instruction", status="refactor_run")
 def refactor(instruction: str):
     """
     Run a repository-wide refactor.
     """
-    result = run_refactor(instruction)
-    
-    sess = _state.get("current_session")
-    session_id = sess.get("id") if sess else os.urandom(8).hex()
-    _state["session_id"] = session_id
-    
-    add_history_record(session_id=session_id, prompt=instruction, status="refactor_run")
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return run_refactor(instruction)
 
 @app.command()
+@with_output_handling
+@record_history(prompt_arg_name="prompt", status="task_run")
 def task(prompt: str):
     """
     Ask Jules to perform an arbitrary dev task (bugfix/refactor/tests/docs).
     """
-    result = run_task(prompt)
-    
-    sess = _state.get("current_session")
-    session_id = sess.get("id") if sess else os.urandom(8).hex()
-    _state["session_id"] = session_id
-    
-    add_history_record(session_id=session_id, prompt=prompt, status="task_run")
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return run_task(prompt)
 
 @app.command()
+@with_output_handling
 def approve(session_id: str = typer.Argument(None, help="Session ID to approve (optional if recent session exists)")):
     """
     Approve the plan for the current or specified session.
     """
-    result = cmd_approve(session_id)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_approve(session_id)
 
 @app.command()
+@with_output_handling
 def reject(session_id: str = typer.Argument(None, help="Session ID to reject (optional if recent session exists)")):
     """
     Reject the plan for the current or specified session.
     """
-    result = cmd_reject(session_id)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_reject(session_id)
 
 @session_app.command("list")
+@with_output_handling
 def session_list():
     """
     List sessions.
     """
-    result = cmd_session_list()
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_session_list()
 
 @session_app.command("show")
+@with_output_handling
 def session_show(session_id: str):
     """
     Show session details.
     """
-    result = cmd_session_show(session_id)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_session_show(session_id)
 
 @history_app.command("list")
+@with_output_handling
 def history_list():
     """
     List all sessions.
     """
-    result = cmd_history_list()
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_history_list()
 
 @history_app.command("view")
+@with_output_handling
 def history_view(session_id: str):
     """
     Show session details by id.
     """
-    result = cmd_history_view(session_id)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_history_view(session_id)
 
 @app.command()
+@with_output_handling
 def apply():
     """
     Apply last patch received.
@@ -249,10 +226,10 @@ def apply():
     result = cmd_apply()
     if _state.get("session_id"):
         add_history_record(session_id=_state.get("session_id"), patch=_state.get("last_patch"), status="patched")
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return result
 
 @app.command()
+@with_output_handling
 def commit(
     commit_message: str = typer.Option(
         "chore: automated changes from Jules",
@@ -270,21 +247,19 @@ def commit(
     """
     Commit & create branch after apply (if patch applied locally).
     """
-    result = cmd_commit_and_push(commit_message=commit_message, branch_type=branch_type)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_commit_and_push(commit_message=commit_message, branch_type=branch_type)
 
 @app.command()
+@with_output_handling
 def push():
     """
     Push branch to origin.
     """
     branch = git_current_branch()
-    result = git_push_branch(branch)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return git_push_branch(branch)
 
 @pr_app.command("create")
+@with_output_handling
 def pr_create(
     title: str = typer.Option("Automated fix from Jules CLI", "--title", "-t", help="PR title."),
     body: str = typer.Option("Auto PR", "--body", "-b", help="PR body."),
@@ -321,26 +296,23 @@ def pr_create(
     )
     if _state.get("session_id"):
         add_history_record(session_id=_state.get("session_id"), pr_url=pr_url, status="pr_created")
-    if _state.get("json_output"):
-        print_json({"pr_url": pr_url}, pretty=_state.get("pretty"))
+    return {"pr_url": pr_url}
 
 @app.command()
+@with_output_handling
 def stage():
     """
     Interactively stage changes.
     """
-    result = cmd_stage()
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_stage()
 
 @app.command()
+@with_output_handling
 def doctor():
     """
     Run environment validation checks.
     """
-    result = run_doctor_command()
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return run_doctor_command()
 
 @app.command(name="init")
 def init():
@@ -350,6 +322,7 @@ def init():
     cmd_init()
 
 @app.command()
+@with_output_handling
 def suggest(
     focus: str = typer.Option(None, "--focus", "-f", help="Limit suggestions to a specific area."),
     security: bool = typer.Option(False, "--security", help="Focus on security vulnerabilities (OWASP, secrets)."),
@@ -374,8 +347,7 @@ def suggest(
 
     add_history_record(session_id=session_id, prompt=prompt_desc, status="suggest_run")
     
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return result
 
 @app.command()
 def interact(prompt: str):
