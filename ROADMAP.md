@@ -37,7 +37,7 @@
 - [x] **Context-Aware Suggestions**: Proactive code improvements (`jules suggest`).
 - [x] **Shell Completion**: Tab-completion for Bash, Zsh, and Fish.
 - [x] **Test Report Summaries**: Summary output for test runs and flaky test detection.
-- [ ] **TUI (Text User Interface)**: Rich terminal UI using `textual` for complex sessions and diff reviews.
+- [x] **TUI (Text User Interface)**: Rich terminal UI using `textual` for complex sessions and diff reviews.
 
 ---
 

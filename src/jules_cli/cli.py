@@ -29,6 +29,7 @@ from .commands.suggest import cmd_suggest
 from .commands.interact import cmd_interact
 from .commands.init import cmd_init
 from .commands.upgrade import upgrade_app
+from .tui.app import JulesTui
 from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
 from .state import _state
@@ -355,6 +356,14 @@ def interact(prompt: str):
     Start an interactive chat session with Jules.
     """
     cmd_interact(prompt)
+
+@app.command()
+def tui():
+    """
+    Launch the Jules TUI.
+    """
+    app = JulesTui()
+    app.run()
 
 
 if __name__ == "__main__":
