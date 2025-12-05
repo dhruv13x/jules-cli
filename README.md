@@ -71,6 +71,7 @@ jules auto
 - **Secure Credential Storage**: Safely stores API keys in your system keyring (`jules auth login`) instead of plain text files.
 - **Self-Update Mechanism**: Keep your CLI up-to-date with `jules upgrade`.
 - **Context Management**: Use `.julesignore` to filter out sensitive files (like `.env`, `node_modules/`) from being sent to the AI.
+- **Shell Completion**: Native tab-completion support for Bash, Zsh, and Fish shells (`jules --install-completion`).
 
 ---
 

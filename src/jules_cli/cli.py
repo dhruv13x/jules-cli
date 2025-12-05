@@ -41,7 +41,7 @@ from .banner import print_logo
 
 app = typer.Typer(
     help="Jules Interactive CLI — fully immersive developer assistant.",
-    add_completion=False,
+    add_completion=True,
     no_args_is_help=True,
     rich_markup_mode="markdown",
 )

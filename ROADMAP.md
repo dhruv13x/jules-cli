@@ -32,7 +32,7 @@
 - [x] Configuration file support (`~/.config/jules/config.toml`).
 - [x] Interactive mode (`jules interact`) for refining goals.
 - [x] Context-aware suggestions (`jules suggest`).
-- [ ] Tab-completion for Bash, Zsh, and Fish shells.
+- [x] Tab-completion for Bash, Zsh, and Fish shells.
 - [ ] Support for `unittest` and `nose2`.
 - [ ] Test report summaries and flaky test detection.
 - [ ] TUI (Text-based User Interface) for rich interactive sessions (using `textual` or similar).
