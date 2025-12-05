@@ -121,11 +121,16 @@ def auto(
         "-r",
         help="Test runner to use (pytest, unittest, nose2).",
     ),
+    detect_flaky: bool = typer.Option(
+        False,
+        "--detect-flaky",
+        help="Attempt to detect flaky tests by re-running failures.",
+    ),
 ):
     """
     Run tests and auto-fix failures.
     """
-    result = auto_fix_command(runner=runner)
+    result = auto_fix_command(runner=runner, detect_flaky=detect_flaky)
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
 

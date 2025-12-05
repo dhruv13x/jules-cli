@@ -64,6 +64,7 @@ jules auto
 
 - **God Level: Proactive Suggestions**: `jules suggest` scans your codebase to identify security holes, missing tests, and technical debt before they become problems.
 - **God Level: Automated Test Fixer**: `jules auto` runs pytest, sends failures to the API, and autonomously applies fixes.
+ - **Flaky Test Detection**: Automatically detects flaky tests by re-running failures (`jules auto --detect-flaky`).
 - **AI-Powered Development Assistant**: Issue natural-language commands to refactor code, add test coverage, or fix bugs (`jules task`).
 - **Stateful Interactive REPL**: Chat with your codebase in real-time (`jules interact`).
 - **Workspace Automation**: Manage multi-repo workflows with `jules workspace run`.
