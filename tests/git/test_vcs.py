@@ -9,9 +9,9 @@ from jules_cli.git.vcs import (
     git_create_branch_and_commit,
     git_push_branch,
     github_create_pr,
-    GITHUB_TOKEN,
 )
 from jules_cli.utils.exceptions import GitError
+from jules_cli.utils.config import config
 
 @pytest.fixture(autouse=True)
 def mock_run_cmd():
@@ -22,11 +22,6 @@ def mock_run_cmd():
 def mock_requests_post():
     with patch("jules_cli.git.vcs.requests.post") as mock_post:
         yield mock_post
-
-@pytest.fixture
-def mock_github_token():
-    with patch.dict(os.environ, {"GITHUB_TOKEN": "test_token"}, clear=True):
-        yield
 
 def test_git_current_branch_success(mock_run_cmd):
     mock_run_cmd.return_value = (0, "main\n", "")
@@ -110,58 +105,61 @@ def test_git_push_branch_failure(mock_run_cmd):
     mock_run_cmd.assert_called_once_with(["git", "push", "-u", "origin", "test-branch"], capture=False)
 
 def test_github_create_pr_no_token(mock_run_cmd):
-    with patch.dict(os.environ, {"GITHUB_TOKEN": ""}, clear=True):
+    with patch.object(config, "get_secret", return_value=None):
         with pytest.raises(GitError, match="GITHUB_TOKEN not set; cannot create PR automatically."):
             github_create_pr(owner="owner", repo="repo", head="head")
 
-def test_github_create_pr_success(mock_requests_post, mock_github_token):
-    mock_response = MagicMock()
-    mock_response.status_code = 201
-    mock_response.json.return_value = {"html_url": "http://pr.url"}
-    mock_requests_post.return_value = mock_response
+def test_github_create_pr_success(mock_requests_post):
+    with patch.object(config, "get_secret", return_value="test_token"):
+        mock_response = MagicMock()
+        mock_response.status_code = 201
+        mock_response.json.return_value = {"html_url": "http://pr.url"}
+        mock_requests_post.return_value = mock_response
 
-    pr_url = github_create_pr(owner="owner", repo="repo", head="head", title="Test PR")
-    assert pr_url == {"html_url": "http://pr.url"}
-    mock_requests_post.assert_called_once()
-    args, kwargs = mock_requests_post.call_args
-    assert kwargs["json"]["head"] == "head"
-    assert kwargs["json"]["title"] == "Test PR"
-    assert kwargs["headers"]["Authorization"] == "token test_token"
+        pr_url = github_create_pr(owner="owner", repo="repo", head="head", title="Test PR")
+        assert pr_url == {"html_url": "http://pr.url"}
+        mock_requests_post.assert_called_once()
+        args, kwargs = mock_requests_post.call_args
+        assert kwargs["json"]["head"] == "head"
+        assert kwargs["json"]["title"] == "Test PR"
+        assert kwargs["headers"]["Authorization"] == "token test_token"
 
-def test_github_create_pr_failure(mock_requests_post, mock_github_token):
-    mock_response = MagicMock()
-    mock_response.status_code = 422
-    mock_response.text = "Validation Failed"
-    mock_requests_post.return_value = mock_response
+def test_github_create_pr_failure(mock_requests_post):
+    with patch.object(config, "get_secret", return_value="test_token"):
+        mock_response = MagicMock()
+        mock_response.status_code = 422
+        mock_response.text = "Validation Failed"
+        mock_requests_post.return_value = mock_response
 
-    with pytest.raises(GitError, match="GitHub PR creation failed 422: Validation Failed"):
-        github_create_pr(owner="owner", repo="repo", head="head")
-    mock_requests_post.assert_called_once()
+        with pytest.raises(GitError, match="GitHub PR creation failed 422: Validation Failed"):
+            github_create_pr(owner="owner", repo="repo", head="head")
+        mock_requests_post.assert_called_once()
 
-def test_github_create_pr_with_optional_fields(mock_requests_post, mock_github_token):
-    mock_response = MagicMock()
-    mock_response.status_code = 201
-    mock_response.json.return_value = {"html_url": "http://pr.url"}
-    mock_requests_post.return_value = mock_response
+def test_github_create_pr_with_optional_fields(mock_requests_post):
+    with patch.object(config, "get_secret", return_value="test_token"):
+        mock_response = MagicMock()
+        mock_response.status_code = 201
+        mock_response.json.return_value = {"html_url": "http://pr.url"}
+        mock_requests_post.return_value = mock_response
 
-    labels = ["bug", "enhancement"]
-    reviewers = ["user1", "user2"]
-    assignees = ["user3"]
+        labels = ["bug", "enhancement"]
+        reviewers = ["user1", "user2"]
+        assignees = ["user3"]
 
-    github_create_pr(
-        owner="owner",
-        repo="repo",
-        head="head",
-        body="PR body",
-        draft=True,
-        labels=labels,
-        reviewers=reviewers,
-        assignees=assignees,
-    )
-    mock_requests_post.assert_called_once()
-    args, kwargs = mock_requests_post.call_args
-    assert kwargs["json"]["body"] == "PR body"
-    assert kwargs["json"]["draft"] is True
-    assert kwargs["json"]["labels"] == labels
-    assert kwargs["json"]["reviewers"] == reviewers
-    assert kwargs["json"]["assignees"] == assignees
+        github_create_pr(
+            owner="owner",
+            repo="repo",
+            head="head",
+            body="PR body",
+            draft=True,
+            labels=labels,
+            reviewers=reviewers,
+            assignees=assignees,
+        )
+        mock_requests_post.assert_called_once()
+        args, kwargs = mock_requests_post.call_args
+        assert kwargs["json"]["body"] == "PR body"
+        assert kwargs["json"]["draft"] is True
+        assert kwargs["json"]["labels"] == labels
+        assert kwargs["json"]["reviewers"] == reviewers
+        assert kwargs["json"]["assignees"] == assignees

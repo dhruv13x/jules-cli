@@ -6,11 +6,17 @@ from unittest.mock import patch, MagicMock
 
 from jules_cli.cli import app
 from jules_cli.utils.exceptions import JulesError
+# Import decorators module to patch object
+import jules_cli.utils.decorators as decorators
 
 runner = CliRunner()
 
 @pytest.fixture(autouse=True)
 def mock_dependencies():
+    # Create shared mocks for functions called from multiple locations
+    mock_add_history_record = MagicMock()
+    mock_print_json = MagicMock()
+
     with patch("jules_cli.cli.check_env") as mock_check_env, \
          patch("jules_cli.cli.init_db") as mock_init_db, \
          patch("jules_cli.cli.setup_logging") as mock_setup_logging, \
@@ -27,8 +33,9 @@ def mock_dependencies():
          patch("jules_cli.cli.cmd_create_pr") as mock_cmd_create_pr, \
          patch("jules_cli.cli.cmd_stage") as mock_cmd_stage, \
          patch("jules_cli.cli.run_doctor_command") as mock_run_doctor_command, \
-         patch("jules_cli.cli.add_history_record") as mock_add_history_record, \
-         patch("jules_cli.cli.print_json") as mock_print_json:
+         patch("jules_cli.cli.add_history_record", mock_add_history_record), \
+         patch.object(decorators, "add_history_record", mock_add_history_record), \
+         patch.object(decorators, "print_json", mock_print_json):
         yield {
             "mock_check_env": mock_check_env,
             "mock_init_db": mock_init_db,
@@ -60,20 +67,6 @@ def test_main_json_pretty_options(mock_dependencies):
     result = runner.invoke(app, ["--json", "--pretty", "doctor"])
     assert result.exit_code == 0
     mock_dependencies["mock_print_json"].assert_called_once_with({"status": "ok"}, pretty=True)
-
-# @pytest.mark.xfail(reason="ValueError: I/O operation on closed file. in CliRunner")
-# def test_main_jules_error_during_check_env(mock_dependencies, caplog):
-#     mock_dependencies["mock_check_env"].side_effect = JulesError("Env check failed")
-#     result = runner.invoke(app, ["auto"], catch_exceptions=False)
-#     assert result.exit_code == 1
-#     assert "Env check failed" in caplog.text
-
-# @pytest.mark.xfail(reason="ValueError: I/O operation on closed file. in CliRunner")
-# def test_main_exception_during_init_db(mock_dependencies, caplog):
-#     mock_dependencies["mock_init_db"].side_effect = Exception("DB init failed")
-#     result = runner.invoke(app, ["auto"], catch_exceptions=False)
-#     assert result.exit_code == 1
-#     assert "Failed to initialize database: DB init failed" in caplog.text
 
 def test_auto_command_json_output(mock_dependencies):
     mock_dependencies["mock_auto_fix_command"].return_value = {"status": "fixed"}
