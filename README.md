@@ -89,7 +89,7 @@ jules auto
 | `auth login` | Interactively set API keys securely. | | |
 | `config get/set`| Manage configuration values. | `key`, `value` | |
 | `config list` | List all configuration. | | |
-| `auto` | Run pytest and auto-fix failures. | | |
+| `auto` | Run tests and auto-fix failures. | | `--runner, -r` |
 | `testgen` | Generate tests for a given file. | `file_path` | `--type, -t` |
 | `refactor` | Run a repository-wide refactor. | `instruction` | |
 | `task` | Ask Jules to perform an arbitrary dev task. | `prompt` | |
