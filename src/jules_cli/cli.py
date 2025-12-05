@@ -114,11 +114,18 @@ def main(
 
 
 @app.command()
-def auto():
+def auto(
+    runner: str = typer.Option(
+        "pytest",
+        "--runner",
+        "-r",
+        help="Test runner to use (pytest, unittest, nose2).",
+    ),
+):
     """
-    Run pytest and auto-fix failures.
+    Run tests and auto-fix failures.
     """
-    result = auto_fix_command()
+    result = auto_fix_command(runner=runner)
     if _state.get("json_output"):
         print_json(result, pretty=_state.get("pretty"))
 
