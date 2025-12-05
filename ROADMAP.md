@@ -34,7 +34,7 @@
 - [x] Context-aware suggestions (`jules suggest`).
 - [x] Tab-completion for Bash, Zsh, and Fish shells.
 - [x] Support for `unittest` and `nose2`.
-- [ ] Test report summaries and flaky test detection.
+- [x] Test report summaries and flaky test detection.
 - [ ] TUI (Text-based User Interface) for rich interactive sessions (using `textual` or similar).
 
 ---
