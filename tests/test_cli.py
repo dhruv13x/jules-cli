@@ -35,7 +35,7 @@ def mock_dependencies():
          patch("jules_cli.cli.run_doctor_command") as mock_run_doctor_command, \
          patch("jules_cli.cli.add_history_record", mock_add_history_record), \
          patch.object(decorators, "add_history_record", mock_add_history_record), \
-         patch.object(decorators, "print_json", mock_print_json):
+         patch("jules_cli.utils.decorators.print_json", mock_print_json):
         yield {
             "mock_check_env": mock_check_env,
             "mock_init_db": mock_init_db,
@@ -130,10 +130,21 @@ def test_push_command_json_output(mock_dependencies):
     mock_dependencies["mock_print_json"].assert_called_once_with({"status": "pushed"}, pretty=False)
 
 def test_pr_create_command_json_output_and_history(mock_dependencies):
+    # The command implementation logic returns {"pr_url": ...} which is then passed to print_json.
+    # The return value of cmd_create_pr is the string URL.
     mock_dependencies["mock_cmd_create_pr"].return_value = "http://pr_url"
-    with patch("jules_cli.cli._state", {"session_id": "test_session"}):
+
+    # We must patch the state within the cli module so that the decorator picks it up.
+    # However, runner.invoke re-initializes or uses the app state.
+    # The @with_output_handling decorator reads _state['json_output'].
+    # runner.invoke with --json sets _state['json_output'] = True in the main callback.
+
+    with patch("jules_cli.cli._state", {"session_id": "test_session", "json_output": True, "pretty": False}):
+        # Mocking add_history_record in both cli and decorators to be safe, though fixture handles decorators
+
         result = runner.invoke(app, ["--json", "pr", "create"])
         assert result.exit_code == 0
+
         mock_dependencies["mock_add_history_record"].assert_called_once_with(
             session_id="test_session", pr_url="http://pr_url", status="pr_created"
         )

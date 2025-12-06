@@ -288,7 +288,9 @@ def pr_create(
         raise typer.Exit(code=1)
 
     url = "unknown"
-    if "html_url" in pr_url: url = pr_url["html_url"]
+    if isinstance(pr_url, str):
+        url = pr_url
+    elif "html_url" in pr_url: url = pr_url["html_url"]
     elif "web_url" in pr_url: url = pr_url["web_url"]
     elif "links" in pr_url and "html" in pr_url["links"]: url = pr_url["links"]["html"]["href"]
 
