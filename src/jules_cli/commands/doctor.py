@@ -59,9 +59,17 @@ def check_dependencies():
         return f"Missing dependencies: {', '.join(missing)}"
 
 def check_configured_repo():
-    owner, repo = git_get_remote_repo_info()
+    # Adjusted for 3-value return
+    info = git_get_remote_repo_info()
+    if info and len(info) >= 2:
+        owner = info[0]
+        repo = info[1]
+        platform = info[2] if len(info) > 2 else "github"
+    else:
+        owner, repo = None, None
+
     if owner and repo:
-        return f"Configured repository: {owner}/{repo}"
+        return f"Configured repository: {owner}/{repo} ({platform})"
     else:
         return "No repository configured or detected from git remote."
 

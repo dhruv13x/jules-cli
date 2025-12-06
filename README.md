@@ -71,7 +71,8 @@ jules auto
 - **Stateful Interactive REPL**: Chat with your codebase in real-time (`jules interact`).
 - **TUI Dashboard**: Launch a rich terminal interface for a visual experience (`jules tui`).
 - **Workspace Automation**: Run commands across multiple repositories defined in a workspace (`jules workspace run`).
-- **GitHub Integration**: Automatically create branches, commits, and pull requests (`jules pr create`).
+- **Multi-Platform PR/MR Support**: Create Pull Requests/Merge Requests for GitHub, GitLab, and Bitbucket (`jules pr create`).
+- **Git Hooks**: Install pre-commit hooks to run jules checks automatically (`jules hooks install`).
 - **Session Management**: Track, review, and resume your interactive sessions (`jules session list`, `jules history view`).
 - **Interactive Staging**: Selectively stage changes with a user-friendly interface (`jules stage`).
 - **Environment Doctor**: Validate your setup and dependencies (`jules doctor`).
@@ -112,7 +113,8 @@ jules auto
 | `apply` | Apply last patch received. | | |
 | `commit` | Commit & create branch after apply. | | `--message` (`-m`), `--type` (`-t`) |
 | `push` | Push branch to origin. | | |
-| `pr create` | Create a GitHub PR from last branch. | | `--title`, `--body`, `--draft`, `--labels`, `--reviewers`, `--assignees`, `--issue` |
+| `pr create` | Create a PR/MR (GitHub/GitLab/Bitbucket). | | `--title`, `--body`, `--draft`, `--labels`, `--reviewers`, `--assignees`, `--issue` |
+| `hooks install` | Install Jules pre-commit hooks. | | |
 | `stage` | Interactively stage changes. | | |
 | `doctor` | Run environment validation checks. | | |
 | `upgrade` | Self-update the Jules CLI. | | |
@@ -164,7 +166,7 @@ The `jules-cli` is a Python-based command-line interface powered by the `typer` 
 - **Proactive Suggestions**: `jules suggest`
 - **Intelligent Test Generation**: `jules testgen`
 - **Interactive REPL**: `jules interact`
-- **GitHub Integration**: `jules pr create`
+- **Multi-Platform PR/MRs**: `jules pr create`
 - **Workspace Automation**: `jules workspace run`
 - **Secure Auth**: Keyring integration.
 - **Self-Updates**: `jules upgrade`
