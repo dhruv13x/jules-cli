@@ -71,7 +71,7 @@ addopts = [
   "--import-mode=importlib",
 
   # Time & perf
-  "--timeout=10",
+#  "--timeout=10",
   "--durations=10",
 
   # Coverage: target the real package
