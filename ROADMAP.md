@@ -47,8 +47,8 @@
 **Focus**: Webhooks, API exposure, 3rd party plugins, SDK generation, and extensibility.
 
 - [x] **GitHub Integration**: Create PRs directly from CLI (`jules pr`).
-- [ ] **GitLab & Bitbucket Integration**: Expand PR/MR support to other platforms.
-- [ ] **Pre-commit Hook Integration**: Local hooks to run `jules suggest` or `jules auto` before commits.
+- [x] **GitLab & Bitbucket Integration**: Expand PR/MR support to other platforms.
+- [x] **Pre-commit Hook Integration**: Local hooks to run `jules suggest` or `jules auto` before commits.
 - [ ] **CI/CD Templates**: Ready-to-use workflows for GitHub Actions, GitLab CI, and CircleCI.
 - [ ] **Public Python API**: Stabilize `jules_cli.core` for external tool integration.
 - [ ] **Plugin Architecture**: System for community-driven extensions and commands.

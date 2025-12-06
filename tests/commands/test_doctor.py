@@ -29,11 +29,11 @@ def test_check_dependencies_missing():
     with patch("importlib.metadata.version", side_effect=importlib.metadata.PackageNotFoundError):
         assert "Missing dependencies" in check_dependencies()
 
-@patch('jules_cli.commands.doctor.git_get_remote_repo_info', return_value=("owner", "repo"))
+@patch('jules_cli.commands.doctor.git_get_remote_repo_info', return_value=("owner", "repo", "github"))
 def test_check_configured_repo_found(mock_git_get_remote_repo_info):
     assert "Configured repository: owner/repo" in check_configured_repo()
 
-@patch('jules_cli.commands.doctor.git_get_remote_repo_info', return_value=(None, None))
+@patch('jules_cli.commands.doctor.git_get_remote_repo_info', return_value=(None, None, None))
 def test_check_configured_repo_not_found(mock_git_get_remote_repo_info):
     assert "No repository configured or detected from git remote." in check_configured_repo()
 

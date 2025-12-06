@@ -35,22 +35,22 @@ def test_git_is_clean_failure(mock_run):
 @patch("jules_cli.git.vcs.run_cmd")
 def test_git_get_remote_repo_info_ssh(mock_run):
     mock_run.return_value = (0, "git@github.com:owner/repo.git\n", "")
-    assert vcs.git_get_remote_repo_info() == ("owner", "repo")
+    assert vcs.git_get_remote_repo_info() == ("owner", "repo", "github")
 
 @patch("jules_cli.git.vcs.run_cmd")
 def test_git_get_remote_repo_info_https(mock_run):
     mock_run.return_value = (0, "https://github.com/owner/repo.git\n", "")
-    assert vcs.git_get_remote_repo_info() == ("owner", "repo")
+    assert vcs.git_get_remote_repo_info() == ("owner", "repo", "github")
 
 @patch("jules_cli.git.vcs.run_cmd")
 def test_git_get_remote_repo_info_failure(mock_run):
     mock_run.return_value = (1, "", "error")
-    assert vcs.git_get_remote_repo_info() == (None, None)
+    assert vcs.git_get_remote_repo_info() == (None, None, None)
 
 @patch("jules_cli.git.vcs.run_cmd")
 def test_git_get_remote_repo_info_invalid(mock_run):
     mock_run.return_value = (0, "invalid_url", "")
-    assert vcs.git_get_remote_repo_info() == (None, None)
+    assert vcs.git_get_remote_repo_info() == (None, None, None)
 
 @patch("jules_cli.git.vcs.run_cmd")
 def test_git_create_branch_and_commit_success(mock_run):

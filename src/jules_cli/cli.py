@@ -29,6 +29,7 @@ from .commands.suggest import cmd_suggest
 from .commands.interact import cmd_interact
 from .commands.init import cmd_init
 from .commands.upgrade import upgrade_app
+from .commands.hooks import install_hooks
 from .tui.app import JulesTui
 from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
@@ -51,6 +52,7 @@ app = typer.Typer(
 session_app = typer.Typer(name="session", help="Manage sessions.")
 history_app = typer.Typer(name="history", help="View session history.")
 pr_app = typer.Typer(name="pr", help="Manage pull requests.")
+hooks_app = typer.Typer(name="hooks", help="Manage local git hooks.")
 
 app.add_typer(session_app)
 app.add_typer(history_app)
@@ -59,6 +61,7 @@ app.add_typer(workspace_app)
 app.add_typer(config_app)
 app.add_typer(auth_app)
 app.add_typer(upgrade_app)
+app.add_typer(hooks_app)
 
 def load_plugins():
     for entry_point in metadata.entry_points(group="jules.plugins"):
@@ -105,8 +108,6 @@ def main(
         except JulesError as e:
             logger.error(e)
             raise typer.Exit(code=1)
-
-        # logger.info("Jules CLI starting. JULES_API_KEY detected.") # This line was commented out in previous step
 
         try:
             init_db()
@@ -271,22 +272,9 @@ def pr_create(
     issue: int = typer.Option(None, "--issue", "-i", help="Linked issue number."),
 ):
     """
-    Create a GitHub PR from last branch (requires GITHUB_TOKEN).
+    Create a PR/MR for GitHub, GitLab, or Bitbucket. Auto-detects platform.
     """
-    owner = _state.get("repo_owner")
-    repo = _state.get("repo_name")
-
-    if not owner or not repo:
-        default_repo = config.get_nested("core", "default_repo")
-        if default_repo and "/" in default_repo:
-            owner, repo = default_repo.split("/", 1)
-        else:
-            logger.error("No repository specified in state or config. Use 'jules config set-repo <owner/repo>' or run a task first.")
-            raise typer.Exit(code=1)
-
     pr_url = cmd_create_pr(
-        owner=owner,
-        repo=repo,
         title=title,
         body=body,
         draft=draft,
@@ -295,9 +283,26 @@ def pr_create(
         assignees=assignees.split(",") if assignees else None,
         issue=issue,
     )
+
+    if isinstance(pr_url, dict) and "status" in pr_url and pr_url["status"] == "error":
+        raise typer.Exit(code=1)
+
+    url = "unknown"
+    if "html_url" in pr_url: url = pr_url["html_url"]
+    elif "web_url" in pr_url: url = pr_url["web_url"]
+    elif "links" in pr_url and "html" in pr_url["links"]: url = pr_url["links"]["html"]["href"]
+
     if _state.get("session_id"):
-        add_history_record(session_id=_state.get("session_id"), pr_url=pr_url, status="pr_created")
-    return {"pr_url": pr_url}
+        add_history_record(session_id=_state.get("session_id"), pr_url=url, status="pr_created")
+    return {"pr_url": url}
+
+@hooks_app.command("install")
+def hooks_install():
+    """
+    Install Jules pre-commit hooks.
+    """
+    install_hooks()
+
 
 @app.command()
 @with_output_handling
