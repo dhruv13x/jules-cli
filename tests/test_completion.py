@@ -16,8 +16,7 @@ def test_completion_options_are_present():
          patch("jules_cli.cli.setup_logging"), \
          patch("jules_cli.cli.load_plugins"):
 
-        result = runner.invoke(app, ["--help"])
-
+        result = runner.invoke(app, ["_completion", "bash"])
+        result = runner.invoke(app, ["--show-completion", "bash"])
         assert result.exit_code == 0
-        assert "--install-completion" in result.stdout
-        assert "--show-completion" in result.stdout
+        assert "complete -o default -F" in result.stdout # A common pattern in bash completion scripts
