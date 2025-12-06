@@ -69,6 +69,7 @@ jules auto
 - **AI-Powered Refactoring**: Perform repository-wide refactors with natural language instructions (`jules refactor "Migrate to Python 3.11"`).
 - **Development Assistant**: Issue arbitrary tasks like bug fixes or feature additions (`jules task "Add a retry mechanism to the HTTP client"`).
 - **Stateful Interactive REPL**: Chat with your codebase in real-time (`jules interact`).
+- **TUI Dashboard**: Launch a rich terminal interface for a visual experience (`jules tui`).
 - **Workspace Automation**: Run commands across multiple repositories defined in a workspace (`jules workspace run`).
 - **GitHub Integration**: Automatically create branches, commits, and pull requests (`jules pr create`).
 - **Session Management**: Track, review, and resume your interactive sessions (`jules session list`, `jules history view`).
@@ -100,6 +101,7 @@ jules auto
 | `task` | Ask Jules to perform an arbitrary dev task. | `prompt` | |
 | `suggest` | Proactively scan and suggest improvements. | | `--focus` (`-f`), `--security`, `--tests`, `--chore` |
 | `interact` | Start an interactive chat session. | `prompt` | |
+| `tui` | Launch the Jules TUI. | | |
 | `workspace run` | Run command across multiple repos. | `command` | |
 | `approve` | Approve the plan for the current session. | `session_id` | |
 | `reject` | Reject the plan for the current session. | `session_id` | |

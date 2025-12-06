@@ -12,7 +12,8 @@ dependencies = [
     "anthropic>=0.18.0",
     "toml>=0.10.0",
     "PyYAML>=6.0",
-    "keyring>=24.0.0"
+    "keyring>=24.0.0",
+    "textual>=0.50.0"
 ]
 
 [project.scripts]
