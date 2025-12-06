@@ -27,18 +27,9 @@
 <!-- License -->
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<!-- Docs -->
-[![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://your-docs-link)
-
 </div>
 
-
 # jules-cli
-
-[![PyPI Version](https://img.shields.io/pypi/v/jules-cli.svg)](https://pypi.org/project/jules-cli/)
-![Python Versions](https://img.shields.io/pypi/pyversions/jules-cli)
-[![License](https://img.shields.io/github/license/dhruv13x/jules-cli)](LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dhruv13x/jules-cli/publish.yml?label=PyPI%20Publish)](https://github.com/dhruv13x/jules-cli/actions)
 
 A fully automated **developer assistant CLI** built on the **Jules API** (Google’s experimental code automation system).  
 `jules-cli` lets you run tests, fix bugs, apply patches, refactor code, and even create GitHub pull requests — all from your terminal.
@@ -60,19 +51,34 @@ pip install jules-cli
 
 ### Usage Example
 ```bash
+# Initialize and setup API keys
+jules init
+
+# Fix tests automatically
 jules auto
 ```
+
 ---
 
 ## ✨ Key Features
 
-- **Automated Test Fixer**: Runs pytest, sends failures to the Jules API, receives automated patches, applies them locally, and re-runs tests.
-- **AI-Powered Development Assistant**: Issue natural-language commands to refactor code, add test coverage, or fix bugs.
-- **Stateful Interactive REPL**: Access a full command shell for an immersive development experience.
-- **GitHub Integration**: Automatically create branches, commits, and pull requests.
-- **Structured Logging**: Debug-friendly logs with `--debug`, `--verbose`, and `--json` support for better observability.
-- **Context Management**: Use `.julesignore` to filter out sensitive files and directories (like `.env`, `node_modules/`) from being sent to the AI.
-- **Trusted Auth**: Uses Google's Jules API with the `X-Goog-Api-Key` header for secure and isolated sessions.
+- **God Level: Proactive Suggestions**: `jules suggest` scans your codebase to identify security holes, missing tests, and technical debt before they become problems.
+- **God Level: Automated Test Fixer**: `jules auto` runs pytest, sends failures to the API, and autonomously applies fixes.
+ - **Flaky Test Detection**: Automatically detects flaky tests by re-running failures (`jules auto --detect-flaky`).
+- **God Level: Intelligent Test Generation**: `jules testgen` generates comprehensive tests for your code (`jules testgen src/utils.py`).
+- **AI-Powered Refactoring**: Perform repository-wide refactors with natural language instructions (`jules refactor "Migrate to Python 3.11"`).
+- **Development Assistant**: Issue arbitrary tasks like bug fixes or feature additions (`jules task "Add a retry mechanism to the HTTP client"`).
+- **Stateful Interactive REPL**: Chat with your codebase in real-time (`jules interact`).
+- **TUI Dashboard**: Launch a rich terminal interface for a visual experience (`jules tui`).
+- **Workspace Automation**: Run commands across multiple repositories defined in a workspace (`jules workspace run`).
+- **Multi-Platform PR/MR Support**: Create Pull Requests/Merge Requests for GitHub, GitLab, and Bitbucket (`jules pr create`).
+- **Git Hooks**: Install pre-commit hooks to run jules checks automatically (`jules hooks install`).
+- **Session Management**: Track, review, and resume your interactive sessions (`jules session list`, `jules history view`).
+- **Interactive Staging**: Selectively stage changes with a user-friendly interface (`jules stage`).
+- **Environment Doctor**: Validate your setup and dependencies (`jules doctor`).
+- **Secure Credential Storage**: Safely stores API keys in your system keyring (`jules auth login`) instead of plain text files.
+- **Self-Update Mechanism**: Keep your CLI up-to-date with `jules upgrade`.
+- **Shell Completion**: Native tab-completion support for Bash, Zsh, and Fish shells (`jules --install-completion`).
 
 ---
 
@@ -87,24 +93,38 @@ jules auto
 | Command | Description | Arguments | Options |
 | --- | --- | --- | --- |
 | `init` | Interactive setup wizard. | | |
-| `auto` | Run pytest and auto-fix failures. | | |
-| `testgen` | Generate tests for a given file. | `file_path` | `--type, -t` |
+| `auth login` | Interactively set API keys securely. | | |
+| `config get/set`| Manage configuration values. | `key`, `value` | |
+| `config list` | List all configuration. | | |
+| `auto` | Run tests and auto-fix failures. | | `--runner` (`-r`), `--detect-flaky` |
+| `testgen` | Generate tests for a given file. | `file_path` | `--type` (`-t`) |
 | `refactor` | Run a repository-wide refactor. | `instruction` | |
 | `task` | Ask Jules to perform an arbitrary dev task. | `prompt` | |
-| `approve` | Approve the plan for the current or specified session. | `session_id` | |
-| `reject` | Reject the plan for the current or specified session. | `session_id` | |
-| `session list` | List sessions. | | |
-| `session show` | Show session details. | `session_id` | |
-| `history list` | List all sessions. | | |
-| `history view` | Show session details by id. | `session_id` | |
+| `suggest` | Proactively scan and suggest improvements. | | `--focus` (`-f`), `--security`, `--tests`, `--chore` |
+| `interact` | Start an interactive chat session. | `prompt` | |
+| `tui` | Launch the Jules TUI. | | |
+| `workspace run` | Run command across multiple repos. | `command` | |
+| `approve` | Approve the plan for the current session. | `session_id` | |
+| `reject` | Reject the plan for the current session. | `session_id` | |
+| `session list` | List active sessions. | | |
+| `session show` | Show active session details. | `session_id` | |
+| `history list` | List all past sessions. | | |
+| `history view` | View details of a past session. | `session_id` | |
 | `apply` | Apply last patch received. | | |
-| `commit` | Commit & create branch after apply. | | `--message, -m`, `--type, -t` |
+| `commit` | Commit & create branch after apply. | | `--message` (`-m`), `--type` (`-t`) |
 | `push` | Push branch to origin. | | |
-| `pr create` | Create a GitHub PR from last branch. | | `--title, -t`, `--body, -b`, `--draft`, `--labels, -l`, `--reviewers, -r`, `--assignees, -a`, `--issue, -i` |
+| `pr create` | Create a PR/MR (GitHub/GitLab/Bitbucket). | | `--title`, `--body`, `--draft`, `--labels`, `--reviewers`, `--assignees`, `--issue` |
+| `hooks install` | Install Jules pre-commit hooks. | | |
 | `stage` | Interactively stage changes. | | |
 | `doctor` | Run environment validation checks. | | |
-| `suggest` | Proactively scan the codebase and suggest improvements. | | `--focus, -f`, `--security`, `--tests`, `--chore` |
-| `interact` | Start an interactive chat session with Jules. | `prompt` | |
+| `upgrade` | Self-update the Jules CLI. | | |
+
+**Global Options:**
+- `--debug`: Enable debug logging.
+- `--verbose`: Enable verbose logging.
+- `--no-color`: Disable colored output.
+- `--json`: Output in JSON format.
+- `--pretty`: Pretty-print JSON output.
 
 ---
 
@@ -115,39 +135,41 @@ jules-cli/
 │
 ├── src/
 │   └── jules_cli/
-│       ├── commands/
-│       │   ├── auto.py
-│       │   ├── task.py
-│       │   └── ...
-│       ├── core/
-│       ├── git/
-│       ├── patch/
-│       ├── pytest/
-│       ├── utils/
-│       ├── cli.py
-│       ├── __init__.py
+│       ├── commands/      # Individual command modules (auto.py, task.py, etc.)
+│       ├── core/          # Jules API interaction
+│       ├── git/           # Git utilities
+│       ├── patch/         # Patch application logic
+│       ├── testing/       # Test runner integration
+│       ├── utils/         # Shared helpers (logging, config)
+│       ├── cli.py         # Main entry point (Typer app)
 │       └── ...
 │
-├── tests/
-├── pyproject.toml
-└── README.md
+├── tests/                 # Test suite
+├── config.toml            # Configuration file
+├── pyproject.toml         # Project metadata and dependencies
+└── README.md              # Documentation
 ```
 
-The `jules-cli` is a Python-based command-line interface powered by the `typer` library. The core logic is organized into several modules within the `src/jules_cli` directory, including `commands` for CLI command definitions, `core` for Jules API interaction, `git` for Git utilities, `patch` for patch management, `pytest` for test integration, and `utils` for shared helpers. The main entry point of the application is `cli.py`, which defines the CLI commands and their arguments.
+The `jules-cli` is a Python-based command-line interface powered by the `typer` library. The core logic is organized into several modules within the `src/jules_cli` directory. `cli.py` serves as the main entry point, aggregating sub-commands from the `commands/` directory. The application uses a global state (`_state`) to manage session data across commands and secure storage (`keyring`) for credentials.
 
 ---
 
 ## 🗺️ Roadmap
 
 ### Upcoming
-- Multi-repo workspace automation
-- AI-powered merge conflict resolver
+- **Spec-First Mode**: Generate specs, then code, then tests.
+- **AI-powered merge conflict resolver**: Intelligent conflict resolution strategies.
+- **Enhanced Workspace Support**: Deeper integration for monorepos and multi-repo setups.
 
 ### Completed
-- Automated test fixer
-- AI-powered development assistant
-- Stateful interactive REPL
-- GitHub integration
+- **Automated test fixer**: `jules auto`
+- **Proactive Suggestions**: `jules suggest`
+- **Intelligent Test Generation**: `jules testgen`
+- **Interactive REPL**: `jules interact`
+- **Multi-Platform PR/MRs**: `jules pr create`
+- **Workspace Automation**: `jules workspace run`
+- **Secure Auth**: Keyring integration.
+- **Self-Updates**: `jules upgrade`
 
 ---
 

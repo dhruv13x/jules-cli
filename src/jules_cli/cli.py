@@ -18,6 +18,7 @@ from .commands.session import cmd_session_list, cmd_session_show
 from .commands.history import cmd_history_list, cmd_history_view
 from .commands.apply import cmd_apply
 from .commands.config import config_app
+from .commands.auth import auth_app
 from .commands.commit import cmd_commit_and_push
 from .commands.pr import cmd_create_pr
 from .commands.doctor import run_doctor_command
@@ -27,6 +28,9 @@ from .commands.workspace import app as workspace_app
 from .commands.suggest import cmd_suggest
 from .commands.interact import cmd_interact
 from .commands.init import cmd_init
+from .commands.upgrade import upgrade_app
+from .commands.hooks import install_hooks
+from .tui.app import JulesTui
 from .db import init_db, add_history_record
 from .git.vcs import git_push_branch, git_current_branch
 from .state import _state
@@ -35,11 +39,12 @@ from .utils.logging import logger, setup_logging
 from .utils.exceptions import JulesError
 from .utils.config import config
 from .utils.output import print_json
+from .utils.decorators import with_output_handling, record_history
 from .banner import print_logo
 
 app = typer.Typer(
     help="Jules Interactive CLI — fully immersive developer assistant.",
-    add_completion=False,
+    add_completion=True,
     no_args_is_help=True,
     rich_markup_mode="markdown",
 )
@@ -47,12 +52,16 @@ app = typer.Typer(
 session_app = typer.Typer(name="session", help="Manage sessions.")
 history_app = typer.Typer(name="history", help="View session history.")
 pr_app = typer.Typer(name="pr", help="Manage pull requests.")
+hooks_app = typer.Typer(name="hooks", help="Manage local git hooks.")
 
 app.add_typer(session_app)
 app.add_typer(history_app)
 app.add_typer(pr_app)
 app.add_typer(workspace_app)
 app.add_typer(config_app)
+app.add_typer(auth_app)
+app.add_typer(upgrade_app)
+app.add_typer(hooks_app)
 
 def load_plugins():
     for entry_point in metadata.entry_points(group="jules.plugins"):
@@ -92,15 +101,13 @@ def main(
 
     setup_logging(level=log_level, color=use_color)
 
-    # Skip environment and DB checks for the 'doctor' command
-    if ctx.invoked_subcommand != "doctor":
+    # Skip environment and DB checks for the 'doctor', 'auth', and 'init' commands
+    if ctx.invoked_subcommand not in ["doctor", "auth", "init"]:
         try:
             check_env()
         except JulesError as e:
             logger.error(e)
             raise typer.Exit(code=1)
-
-        # logger.info("Jules CLI starting. JULES_API_KEY detected.") # This line was commented out in previous step
 
         try:
             init_db()
@@ -110,15 +117,28 @@ def main(
 
 
 @app.command()
-def auto():
+@with_output_handling
+def auto(
+    runner: str = typer.Option(
+        "pytest",
+        "--runner",
+        "-r",
+        help="Test runner to use (pytest, unittest, nose2).",
+    ),
+    detect_flaky: bool = typer.Option(
+        False,
+        "--detect-flaky",
+        help="Attempt to detect flaky tests by re-running failures.",
+    ),
+):
     """
-    Run pytest and auto-fix failures.
+    Run tests and auto-fix failures.
     """
-    result = auto_fix_command()
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return auto_fix_command(runner=runner, detect_flaky=detect_flaky)
 
 @app.command()
+@with_output_handling
+@record_history(prompt_template="generate {test_type} tests for {file_path}", status="testgen_run")
 def testgen(
     file_path: str,
     test_type: str = typer.Option(
@@ -131,101 +151,76 @@ def testgen(
     """
     Generate tests for a given file.
     """
-    result = run_testgen(file_path, test_type=test_type)
-    
-    sess = _state.get("current_session")
-    session_id = sess.get("id") if sess else os.urandom(8).hex()
-    _state["session_id"] = session_id
-
-    add_history_record(session_id=session_id, prompt=f"generate {test_type} tests for {file_path}", status="testgen_run")
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return run_testgen(file_path, test_type=test_type)
 
 @app.command()
+@with_output_handling
+@record_history(prompt_arg_name="instruction", status="refactor_run")
 def refactor(instruction: str):
     """
     Run a repository-wide refactor.
     """
-    result = run_refactor(instruction)
-    
-    sess = _state.get("current_session")
-    session_id = sess.get("id") if sess else os.urandom(8).hex()
-    _state["session_id"] = session_id
-    
-    add_history_record(session_id=session_id, prompt=instruction, status="refactor_run")
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return run_refactor(instruction)
 
 @app.command()
+@with_output_handling
+@record_history(prompt_arg_name="prompt", status="task_run")
 def task(prompt: str):
     """
     Ask Jules to perform an arbitrary dev task (bugfix/refactor/tests/docs).
     """
-    result = run_task(prompt)
-    
-    sess = _state.get("current_session")
-    session_id = sess.get("id") if sess else os.urandom(8).hex()
-    _state["session_id"] = session_id
-    
-    add_history_record(session_id=session_id, prompt=prompt, status="task_run")
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return run_task(prompt)
 
 @app.command()
+@with_output_handling
 def approve(session_id: str = typer.Argument(None, help="Session ID to approve (optional if recent session exists)")):
     """
     Approve the plan for the current or specified session.
     """
-    result = cmd_approve(session_id)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_approve(session_id)
 
 @app.command()
+@with_output_handling
 def reject(session_id: str = typer.Argument(None, help="Session ID to reject (optional if recent session exists)")):
     """
     Reject the plan for the current or specified session.
     """
-    result = cmd_reject(session_id)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_reject(session_id)
 
 @session_app.command("list")
+@with_output_handling
 def session_list():
     """
     List sessions.
     """
-    result = cmd_session_list()
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_session_list()
 
 @session_app.command("show")
+@with_output_handling
 def session_show(session_id: str):
     """
     Show session details.
     """
-    result = cmd_session_show(session_id)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_session_show(session_id)
 
 @history_app.command("list")
+@with_output_handling
 def history_list():
     """
     List all sessions.
     """
-    result = cmd_history_list()
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_history_list()
 
 @history_app.command("view")
+@with_output_handling
 def history_view(session_id: str):
     """
     Show session details by id.
     """
-    result = cmd_history_view(session_id)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_history_view(session_id)
 
 @app.command()
+@with_output_handling
 def apply():
     """
     Apply last patch received.
@@ -233,10 +228,10 @@ def apply():
     result = cmd_apply()
     if _state.get("session_id"):
         add_history_record(session_id=_state.get("session_id"), patch=_state.get("last_patch"), status="patched")
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return result
 
 @app.command()
+@with_output_handling
 def commit(
     commit_message: str = typer.Option(
         "chore: automated changes from Jules",
@@ -254,21 +249,19 @@ def commit(
     """
     Commit & create branch after apply (if patch applied locally).
     """
-    result = cmd_commit_and_push(commit_message=commit_message, branch_type=branch_type)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_commit_and_push(commit_message=commit_message, branch_type=branch_type)
 
 @app.command()
+@with_output_handling
 def push():
     """
     Push branch to origin.
     """
     branch = git_current_branch()
-    result = git_push_branch(branch)
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return git_push_branch(branch)
 
 @pr_app.command("create")
+@with_output_handling
 def pr_create(
     title: str = typer.Option("Automated fix from Jules CLI", "--title", "-t", help="PR title."),
     body: str = typer.Option("Auto PR", "--body", "-b", help="PR body."),
@@ -279,22 +272,9 @@ def pr_create(
     issue: int = typer.Option(None, "--issue", "-i", help="Linked issue number."),
 ):
     """
-    Create a GitHub PR from last branch (requires GITHUB_TOKEN).
+    Create a PR/MR for GitHub, GitLab, or Bitbucket. Auto-detects platform.
     """
-    owner = _state.get("repo_owner")
-    repo = _state.get("repo_name")
-
-    if not owner or not repo:
-        default_repo = config.get_nested("core", "default_repo")
-        if default_repo and "/" in default_repo:
-            owner, repo = default_repo.split("/", 1)
-        else:
-            logger.error("No repository specified in state or config. Use 'jules config set-repo <owner/repo>' or run a task first.")
-            raise typer.Exit(code=1)
-
     pr_url = cmd_create_pr(
-        owner=owner,
-        repo=repo,
         title=title,
         body=body,
         draft=draft,
@@ -303,28 +283,44 @@ def pr_create(
         assignees=assignees.split(",") if assignees else None,
         issue=issue,
     )
+
+    if isinstance(pr_url, dict) and "status" in pr_url and pr_url["status"] == "error":
+        raise typer.Exit(code=1)
+
+    url = "unknown"
+    if isinstance(pr_url, str):
+        url = pr_url
+    elif "html_url" in pr_url: url = pr_url["html_url"]
+    elif "web_url" in pr_url: url = pr_url["web_url"]
+    elif "links" in pr_url and "html" in pr_url["links"]: url = pr_url["links"]["html"]["href"]
+
     if _state.get("session_id"):
-        add_history_record(session_id=_state.get("session_id"), pr_url=pr_url, status="pr_created")
-    if _state.get("json_output"):
-        print_json({"pr_url": pr_url}, pretty=_state.get("pretty"))
+        add_history_record(session_id=_state.get("session_id"), pr_url=url, status="pr_created")
+    return {"pr_url": url}
+
+@hooks_app.command("install")
+def hooks_install():
+    """
+    Install Jules pre-commit hooks.
+    """
+    install_hooks()
+
 
 @app.command()
+@with_output_handling
 def stage():
     """
     Interactively stage changes.
     """
-    result = cmd_stage()
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return cmd_stage()
 
 @app.command()
+@with_output_handling
 def doctor():
     """
     Run environment validation checks.
     """
-    result = run_doctor_command()
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return run_doctor_command()
 
 @app.command(name="init")
 def init():
@@ -334,6 +330,7 @@ def init():
     cmd_init()
 
 @app.command()
+@with_output_handling
 def suggest(
     focus: str = typer.Option(None, "--focus", "-f", help="Limit suggestions to a specific area."),
     security: bool = typer.Option(False, "--security", help="Focus on security vulnerabilities (OWASP, secrets)."),
@@ -358,8 +355,7 @@ def suggest(
 
     add_history_record(session_id=session_id, prompt=prompt_desc, status="suggest_run")
     
-    if _state.get("json_output"):
-        print_json(result, pretty=_state.get("pretty"))
+    return result
 
 @app.command()
 def interact(prompt: str):
@@ -367,6 +363,14 @@ def interact(prompt: str):
     Start an interactive chat session with Jules.
     """
     cmd_interact(prompt)
+
+@app.command()
+def tui():
+    """
+    Launch the Jules TUI.
+    """
+    app = JulesTui()
+    app.run()
 
 
 if __name__ == "__main__":

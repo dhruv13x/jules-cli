@@ -6,17 +6,21 @@ from jules_cli.state import _state
 
 @patch('jules_cli.commands.pr.logger')
 def test_cmd_create_pr_no_token(mock_logger):
-    with patch('os.getenv', return_value=None), patch('jules_cli.commands.pr.config.get_nested', return_value=None):
+    # Patch config.get_secret to return None
+    with patch('jules_cli.commands.pr.config.get_secret', return_value=None):
         pr.cmd_create_pr()
-        mock_logger.error.assert_called_with("GITHUB_TOKEN not set in environment or config; cannot create PR.")
+        mock_logger.error.assert_called_with("GITHUB_TOKEN not set.")
 
 @patch('jules_cli.commands.pr.logger')
-@patch('jules_cli.commands.pr.git_get_remote_repo_info', return_value=(None, None))
+@patch('jules_cli.commands.pr.git_get_remote_repo_info', return_value=(None, None, None))
 def test_cmd_create_pr_no_repo(mock_git_get_remote_repo_info, mock_logger):
     with patch('os.getenv', return_value='test_token'):
         _state["repo_owner"] = None
-        pr.cmd_create_pr()
-        mock_logger.warning.assert_called_with("No repo detected in state or git remote. Run a task first.")
+        _state["repo_name"] = None
+        # Ensure default_repo in config is also not set
+        with patch('jules_cli.commands.pr.config.get_nested', return_value=None):
+            pr.cmd_create_pr()
+            mock_logger.warning.assert_called_with("No repo detected in state, git remote, or config.")
 
 @patch('jules_cli.commands.pr.git_current_branch', return_value="my-branch")
 @patch('jules_cli.commands.pr.github_create_pr', side_effect=Exception("API error"))
