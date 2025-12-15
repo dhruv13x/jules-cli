@@ -1,5 +1,9 @@
 # Changelog
 
+## [17.0.1] - 2025-12-15
+### Documentation
+- update README.md to V3 gold standard (#50)
+
 ## [17.0.0] - 2025-12-07
 ### Other Changes
 - update
